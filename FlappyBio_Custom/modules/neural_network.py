@@ -20,17 +20,18 @@ class Network:
             self.b1 = copy.network.b1
             self.b2 = copy.network.b2
 
-        elif mutations is None:
-            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)
-            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)
-            self.b1 = 0
-            self.b2 = 0
-
-        else:
+        elif mutations:
             self.W1 = mutations[0]
             self.W2 = mutations[1]
             self.b1 = mutations[2]
             self.b2 = mutations[3]
+            self.hidden_layer_size = mutations[4]
+
+        else:
+            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)
+            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)
+            self.b1 = 0
+            self.b2 = 0
 
         self.output = True
 
@@ -81,8 +82,13 @@ class Network:
         if self.chance_mutation():
             mut_factor = self.get_sign_mutation() * np.random.randn(1)
             new_b2 += mut_factor
+
+        new_hidden_layer_size = self.hidden_layer_size
+        if self.chance_mutation():
+            mut_factor = self.get_sign_mutation()
+            new_hidden_layer_size += mut_factor
         
-        return (new_W1, new_W2, new_b1, new_b2)
+        return (new_W1, new_W2, new_b1, new_b2, new_hidden_layer_size)
 
 
     def chance_mutation(self):
