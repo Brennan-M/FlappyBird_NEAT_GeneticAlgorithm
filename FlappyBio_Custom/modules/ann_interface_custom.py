@@ -22,14 +22,14 @@ class Interface:
         """
             What a mess...
         """
-        input_layer_size = 6
+        self.input_layer_size = 8
         if mutations:
             init_hidden_layer_size = mutations[-1]
         else:
             init_hidden_layer_size = 4
         output_layer_size = 1
 
-        topology = [input_layer_size, init_hidden_layer_size, output_layer_size]
+        topology = [self.input_layer_size, init_hidden_layer_size, output_layer_size]
         self.network = ann.Network(topology, mutations, copy)
         
 
@@ -55,20 +55,34 @@ class Interface:
 
 
 
-    def update(self, player, pipes):
+    def update(self, player, Upipes, Lpipes):
         
-        X = np.zeros(6)
+        X = np.zeros(self.input_layer_size)
         X[0] = player.top
         X[1] = player.bottom
-        X[2] = pipes.top
-        X[3] = pipes.bottom
-        X[4] = pipes.left
-        X[5] = pipes.right
+        X[2] = player.left
+        X[3] = player.right
 
-        # print("\nNN Inputs")
-        # for x in X:
-        #     print("\tx: {}".format(x))
+        X[4] = Upipes.bottom
+        X[5] = Lpipes.top
+        X[6] = Upipes.left
+        X[7] = Upipes.right
 
+        
+       
+
+        print("\nNN Inputs")
+        print("\tPlayer top: {}".format(X[0]))
+        print("\tPlayer bottom: {}".format(X[1]))
+        print("\tPlayer left: {}".format(X[2]))
+        print("\tPipes right: {}".format(X[3]))
+        print("\t---------------")
+        print("\tUpper Pipes bottom: {}".format(X[4]))
+        print("\tLower Pipes top: {}".format(X[5]))
+        print("\tPipes left: {}".format(X[6]))
+        print("\tPipes right: {}".format(X[7]))
+        
+        print("\n")
         self.network.feed_forward(X)
 
 

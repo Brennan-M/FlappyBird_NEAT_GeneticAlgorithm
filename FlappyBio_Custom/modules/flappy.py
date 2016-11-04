@@ -74,7 +74,7 @@ def main(neural_network):
         pygame.image.load('assets/sprites/6.png').convert_alpha(),
         pygame.image.load('assets/sprites/7.png').convert_alpha(),
         pygame.image.load('assets/sprites/8.png').convert_alpha(),
-        pygame.image.load('assets/sprites/9.png').convert_alpha()
+        pygame.image.load('assets/sprites/9.png').convert_alpha(),
     )
 
     # game over sprite
@@ -83,6 +83,14 @@ def main(neural_network):
     IMAGES['message'] = pygame.image.load('assets/sprites/message.png').convert_alpha()
     # base (ground) sprite
     IMAGES['base'] = pygame.image.load('assets/sprites/base.png').convert_alpha()
+
+    # Energy and Distance display
+    IMAGES['energy'] = pygame.image.load('assets/sprites/energy.png').convert_alpha()
+    IMAGES['distance'] = pygame.image.load('assets/sprites/distance.png').convert_alpha()
+
+    # Network
+    IMAGES['organism'] = pygame.image.load('assets/sprites/organism.png').convert_alpha()
+    IMAGES['generation'] = pygame.image.load('assets/sprites/generation.png').convert_alpha()
 
     # sounds
     if 'win' in sys.platform:
@@ -320,10 +328,23 @@ def mainGame(movementInfo, network):
         # print score so player overlaps the score
         showScore(score)
 
+        # print energy
+        showMetric(playerEnergyUsed, text="energy")
+        showMetric(playerDistance*-1, 1.4, text="distance")
+
+        # print network info
+        #showNetwork(network.network_ID, x_position=1, y_position=0.7, text="organism")
+        showNetwork(network.network_ID, playerDistance*-1, y_position=0.7, text="organism")
+        showNetwork(network.generation_ID, x_position=0.999, y_position=0.7, text="generation")
+
+
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+
+
+
 
 
 def showGameOverScreen(crashInfo):
@@ -403,6 +424,47 @@ def getRandomPipe():
     ]
 
 
+def showNetwork(ID, x_position=4, y_position=0.9, text=None):
+    """displays score in center of screen"""
+    scoreDigits = [int(x) for x in list(str(ID))]
+    
+    totalWidth = 0 # total width of all numbers to be printed
+
+    for digit in scoreDigits:
+        totalWidth += IMAGES['numbers'][digit].get_width()
+
+    Xoffset = (SCREENWIDTH - totalWidth) / x_position
+
+    for digit in scoreDigits:
+        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * y_position + 10))
+        Xoffset += IMAGES['numbers'][digit].get_width()
+
+    if text == "organism":
+        SCREEN.blit(IMAGES[text], (-8, 395))
+    elif text == "generation":
+        SCREEN.blit(IMAGES[text], (180, 395))
+
+
+def showMetric(energy, x_position=4, y_position=0.9, text=None):
+    """displays score in center of screen"""
+    scoreDigits = [int(x) for x in list(str(energy))]
+    totalWidth = 0 # total width of all numbers to be printed
+
+    for digit in scoreDigits:
+        totalWidth += IMAGES['numbers'][digit].get_width()
+
+    Xoffset = (SCREENWIDTH - totalWidth) / x_position
+
+    for digit in scoreDigits:
+        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * y_position + 10))
+        Xoffset += IMAGES['numbers'][digit].get_width()
+
+    if text == "energy":
+        SCREEN.blit(IMAGES[text], (20, 420))
+    elif text == "distance":
+        SCREEN.blit(IMAGES[text], (120, 413))
+
+
 def showScore(score):
     """displays score in center of screen"""
     scoreDigits = [int(x) for x in list(str(score))]
@@ -448,6 +510,9 @@ def checkCrash(player, upperPipes, lowerPipes, network):
             uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask, network)
             lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask, network)
 
+
+            network.update(playerRect, uPipeRect, lPipeRect)
+
             if uCollide or lCollide:
                 return [True, False]
 
@@ -467,7 +532,7 @@ def pixelCollision(rect1, rect2, hitmask1, hitmask2, network, display_position=F
 
 
     rect = rect1.clip(rect2)
-    network.update(rect1, rect2)
+    
 
 
     if rect.width == 0 or rect.height == 0:
