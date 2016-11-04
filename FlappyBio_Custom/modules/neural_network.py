@@ -25,7 +25,7 @@ class Network:
             self.W2 = mutations[1]
             self.b1 = mutations[2]
             self.b2 = mutations[3]
-            self.hidden_layer_size = mutations[4]
+            self.hidden_layer_size = mutations[-1]
 
         else:
             self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)
@@ -63,30 +63,52 @@ class Network:
 
     def mutate(self):
         
-        new_W1 = self.W1
-        if self.chance_mutation():
-            mut_factor = np.random.randn(self.hidden_layer_size, self.in_layer_size)
-            new_W1 += mut_factor
-            
-        new_W2 = self.W2
-        if self.chance_mutation():
-            mut_factor = np.random.randn(self.out_layer_size, self.hidden_layer_size)
-            new_W2 += mut_factor
-            
         new_b1 = self.b1
-        if self.chance_mutation():
-            mut_factor = self.get_sign_mutation() * np.random.randn(1)
-            new_b1 += mut_factor
-            
         new_b2 = self.b2
-        if self.chance_mutation():
-            mut_factor = self.get_sign_mutation() * np.random.randn(1)
-            new_b2 += mut_factor
 
         new_hidden_layer_size = self.hidden_layer_size
         if self.chance_mutation():
             mut_factor = self.get_sign_mutation()
             new_hidden_layer_size += mut_factor
+
+            # Generate new W1 and W2 of proper dimension
+            # W1
+            new_W1 = np.zeros(new_hidden_layer_size, self.in_layer_size)
+            for i in range(self.hidden_layer_size):
+                for j in range(self.in_layer_size):
+                    new_W1[i][j] = self.W1[i][j]
+
+
+            # W2
+            new_W2 = np.zeros(self.out_layer_size, new_hidden_layer_size)
+            for i in range(self.out_layer_size):
+                for j in range(self.hidden_layer_size):
+                    new_W2[i][j] = self.W1[i][j]
+
+        # If hidden layer changes, other matrices cannot stay the same dimensions.
+        else:
+            new_W1 = self.W1
+            new_W2 = self.W2
+            if self.chance_mutation():
+                mut_factor = np.random.randn(self.hidden_layer_size, self.in_layer_size)
+                new_W1 += mut_factor
+            
+        
+            if self.chance_mutation():
+                mut_factor = np.random.randn(self.out_layer_size, self.hidden_layer_size)
+                new_W2 += mut_factor
+            
+        
+        if self.chance_mutation():
+            mut_factor = self.get_sign_mutation() * np.random.randn(1)
+            new_b1 += mut_factor
+            
+        
+        if self.chance_mutation():
+            mut_factor = self.get_sign_mutation() * np.random.randn(1)
+            new_b2 += mut_factor
+
+        
         
         return (new_W1, new_W2, new_b1, new_b2, new_hidden_layer_size)
 

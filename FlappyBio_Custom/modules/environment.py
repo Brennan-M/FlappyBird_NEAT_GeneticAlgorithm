@@ -56,7 +56,7 @@ class Environment:
         for network in current_generation:
             print("\n\tNetwork {}".format(network.network_ID))
             print("\t----------")
-            #print("\tFlap Frequency: {}".format(network.frequency))
+            print("\tTopology: {}".format(network.network.topology))
 
             results = flpy.main(network)
             fitness_score = results['score']
