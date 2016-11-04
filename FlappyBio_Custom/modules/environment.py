@@ -141,8 +141,7 @@ class Environment:
         for top_net in self.top_networks:
             print("\t Network {}".format(top_net.network_ID))
             print("\t Fitness: {}\n".format(top_net.fitness))
-        #print("\tFlay Frequency: {}".format(top_network.frequency))
-        self.top_networks.append(top_network)
+        
 
 
 
