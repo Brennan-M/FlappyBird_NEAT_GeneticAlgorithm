@@ -68,8 +68,8 @@ class Environment:
                     y_final *= -1
                     fitness_score -= np.exp(0.5*y_final)
 
-            elif fitness_score == 1:
-                fitness_score = 10
+            elif fitness_score >= 1:
+                fitness_score = fitness_score * 10000
 
             network.set_fitness(fitness_score)
             print("\tDistance: {}".format(results['distance']))
@@ -90,6 +90,27 @@ class Environment:
             The result is a new generation with X new progeny posed for a new round of selection
         """
 
+        # print("\n")
+        # print("\t=====================")
+        # print("\t      Selection      ")
+        # print("\t=====================")
+        # generations = self.generations[self.current_generation_number]
+
+        # max_fitness = generations[0].fitness
+        # top_network = generations[0]
+
+
+        # for network in generations:
+            
+        #     if network.fitness > max_fitness:
+        #         top_network = network
+
+        # print("\n\tTop Network: {}".format(top_network.network_ID))
+        # print("\t---------------")
+        # print("\tFitness: {}".format(top_network.fitness))
+        # #print("\tFlay Frequency: {}".format(top_network.frequency))
+        # self.top_networks.append(top_network)
+
         print("\n")
         print("\t=====================")
         print("\t      Selection      ")
@@ -99,16 +120,30 @@ class Environment:
         max_fitness = generations[0].fitness
         top_network = generations[0]
 
-        for network in generations:
-            
-            if network.fitness > max_fitness:
-                top_network = network
+        top_networks = []
+        sorted_ = False
+        i = 0
+        while not sorted_:
+            sorted_ = True
 
-        print("\n\tTop Network: {}".format(top_network.network_ID))
-        print("\t---------------")
-        print("\tFitness: {}".format(top_network.fitness))
+            for index, network in enumerate(generations[:-1]):
+                if network.fitness < generations[index+1]:
+                    temp = network
+                    generations[index] = generations[index+1]
+                    generations[index+1] = temp
+    
+                    sorted_ = False
+
+
+        self.top_networks = generations[:int(len(generations)/2)]
+
+        print("\n\tTop Networks")
+        for top_net in self.top_networks:
+            print("\t Network {}".format(top_net.network_ID))
+            print("\t Fitness: {}\n".format(top_net.fitness))
         #print("\tFlay Frequency: {}".format(top_network.frequency))
         self.top_networks.append(top_network)
+
 
 
     def replication(self):
@@ -119,19 +154,25 @@ class Environment:
         print("\t=====================")
         print("\t     Replication     ")
         print("\t=====================")
-        top_network = self.top_networks[self.current_generation_number]
-        print("\n\tReplicating network {}...".format(top_network.network_ID))
-        child_generation = []
-        for new_network_ID in range(self.networks_per_generation-1):
-            print("\n\tChild {}".format(new_network_ID))
-            print("\t--------")
-            mutations = top_network.mutate()
-            new_network = Interface(new_network_ID, self.current_generation_number+1, mutations)
-            child_generation.append(new_network)
-            
-        child_generation.append(top_network)
 
-        self.generations.append(child_generation)
+        progeny = []
+        new_net_ID = 0
+        for top_network in self.top_networks:
+            print("\n\tReplicating network {}...".format(top_network.network_ID))    
+            print("\t-----------------")
+            print("\tFitness: {}".format(top_network.fitness))
+            mutations = top_network.mutate()
+            new_network = Interface(new_net_ID, self.current_generation_number+1, mutations)
+            new_net_ID += 1
+
+            top_network_copy = Interface(new_net_ID, self.current_generation_number+1, copy=top_network)
+            new_net_ID += 1
+
+            progeny.append(top_network)
+            progeny.append(new_network)
+
+
+        self.generations.append(progeny)
 
         self.current_generation_number += 1
         

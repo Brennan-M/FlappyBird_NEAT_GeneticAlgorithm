@@ -6,7 +6,7 @@ import modules.neural_network as ann
 
 class Interface:
 
-    def __init__(self, net_ID, gen_ID, mutations=None):
+    def __init__(self, net_ID, gen_ID, mutations=None, copy=None):
         self.network_ID = net_ID
         self.generation_ID = gen_ID
         self.fitness = None
@@ -15,10 +15,10 @@ class Interface:
 
 
         # Set up tensor flow
-        self._init_network_(mutations)
+        self._init_network_(mutations, copy)
 
 
-    def _init_network_(self, mutations):
+    def _init_network_(self, mutations, copy=None):
         """
             What a mess...
         """
@@ -27,7 +27,7 @@ class Interface:
         output_layer_size = 1
 
         topology = [input_layer_size, init_hidden_layer_size, output_layer_size]
-        self.network = ann.Network(topology, mutations)
+        self.network = ann.Network(topology, mutations, copy)
         
 
 
