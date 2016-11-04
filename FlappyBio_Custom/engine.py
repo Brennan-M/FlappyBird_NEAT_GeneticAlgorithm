@@ -15,5 +15,5 @@ def main(generations, organisms):
 if __name__ == "__main__":
     
     generations = 100
-    organisms = 10   # number of neural nets per generation
+    organisms = 2   # number of neural nets per generation
     main(generations, organisms)

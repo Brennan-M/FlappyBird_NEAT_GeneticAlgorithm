@@ -73,16 +73,16 @@ class Network:
 
             # Generate new W1 and W2 of proper dimension
             # W1
-            new_W1 = np.zeros(new_hidden_layer_size, self.in_layer_size)
-            for i in range(self.hidden_layer_size):
-                for j in range(self.in_layer_size):
+            new_W1 = np.zeros((new_hidden_layer_size, self.in_layer_size))
+            for i in range(self.hidden_layer_size-1):
+                for j in range(self.in_layer_size-1):
                     new_W1[i][j] = self.W1[i][j]
 
 
             # W2
-            new_W2 = np.zeros(self.out_layer_size, new_hidden_layer_size)
-            for i in range(self.out_layer_size):
-                for j in range(self.hidden_layer_size):
+            new_W2 = np.zeros((self.out_layer_size, new_hidden_layer_size))
+            for i in range(self.out_layer_size-1):
+                for j in range(self.hidden_layer_size-1):
                     new_W2[i][j] = self.W1[i][j]
 
         # If hidden layer changes, other matrices cannot stay the same dimensions.
