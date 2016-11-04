@@ -167,8 +167,8 @@ class Environment:
             top_network_copy = Interface(new_net_ID, self.current_generation_number+1, copy=top_network)
             new_net_ID += 1
 
-            progeny.append(top_network)
             progeny.append(new_network)
+            progeny.append(top_network_copy)
 
 
         self.generations.append(progeny)
