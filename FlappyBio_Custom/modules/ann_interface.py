@@ -1,5 +1,5 @@
 import numpy as np
-import random
+import random, math
 from datetime import datetime
 import tensorflow as tf
 
@@ -20,14 +20,37 @@ class Interface:
 
 
     def _init_TF_(self):
+        """
+            What a mess...
+        """
         self.input_layer_size = 6
         self.output_layer_size = 1
 
+        # Initialize placeholders for inputs and outputs
         self.x = tf.placeholder(tf.float32, [None, self.input_layer_size])
-        self.W = tf.Variable(tf.zeros([self.input_layer_size, self.output_layer_size]))
-        self.b = tf.Variable(tf.zeros([self.output_layer_size]))
+        self.y = tf.placeholder(tf.int32, shape=(self.output_layer_size))
 
-        self.y = tf.nn.softmax(tf.matmul(self.x, self.W) + self.b)
+        # Initialize weights and biases
+        self.Weights = tf.Variable(tf.truncated_normal([self.input_layer_size, self.output_layer_size],
+                        stddev=1.0 / math.sqrt(float(self.input_layer_size))),
+                        name='weights')
+
+        self.biases = tf.Variable(tf.zeros([self.output_layer_size], 
+                        name='biases'))
+
+        # Initialize hidden layer
+        self.hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)
+
+        # Initialize logics
+        self.logits = tf.matmul(self.hidden1, weights) + biases
+
+        #self.y = tf.nn.softmax(tf.matmul(self.x, self.W) + self.b)
+        #print("\n\t\t**self.y: {}".format(self.y))
+
+        init = tf.initialize_all_variables()
+        sess = tf.Session()
+        sess.run(init)
+
 
 
     def set_fitness(self, fitness):
@@ -65,6 +88,7 @@ class Interface:
         self.pipes_right = pipes.right
 
         # Update tensor_flow
+        self._update_TF()
 
     def _update_TF(self):
         y_ = tf.placeholder(tf.float32, [None, self.output_layer_size])

@@ -1,6 +1,7 @@
-import modules.flappy as flpy
-from modules.ann_interface import *
 import numpy as np
+import modules.flappy as flpy
+from modules.ann_interface_custom import *
+
 
 class Environment:
 
@@ -55,12 +56,24 @@ class Environment:
         for network in current_generation:
             print("\n\tNetwork {}".format(network.network_ID))
             print("\t----------")
-            print("\tFlap Frequency: {}".format(network.frequency))
+            #print("\tFlap Frequency: {}".format(network.frequency))
 
             results = flpy.main(network)
             fitness_score = results['score']
-            network.set_fitness(fitness_score)
+            if fitness_score == 0:
+                fitness_score = results['distance']
+                y_final = results['y']
+                y_threshold = 0
+                if y_final <= 0:
+                    y_final *= -1
+                    fitness_score -= np.exp(0.5*y_final)
 
+            elif fitness_score == 1:
+                fitness_score = 10
+
+            network.set_fitness(fitness_score)
+            print("\tDistance: {}".format(results['distance']))
+            print("\ty: {}".format(results['y']))
             print("\tFitness: {}".format(fitness_score))
 
         
@@ -94,7 +107,7 @@ class Environment:
         print("\n\tTop Network: {}".format(top_network.network_ID))
         print("\t---------------")
         print("\tFitness: {}".format(top_network.fitness))
-        print("\tFlay Frequency: {}".format(top_network.frequency))
+        #print("\tFlay Frequency: {}".format(top_network.frequency))
         self.top_networks.append(top_network)
 
 
@@ -109,32 +122,16 @@ class Environment:
         top_network = self.top_networks[self.current_generation_number]
         print("\n\tReplicating network {}...".format(top_network.network_ID))
         child_generation = []
-        for new_network_ID in range(self.networks_per_generation):
+        for new_network_ID in range(self.networks_per_generation-1):
             print("\n\tChild {}".format(new_network_ID))
             print("\t--------")
             mutations = top_network.mutate()
             new_network = Interface(new_network_ID, self.current_generation_number+1, mutations)
             child_generation.append(new_network)
-            print("\tNew Flap Rate: {}".format(mutations))
+            
+        child_generation.append(top_network)
 
         self.generations.append(child_generation)
 
         self.current_generation_number += 1
         
-
-
-def main():
-    scores = []
-    
-    environment = Environment(2)
-
-    for generation in range(10):
-
-        environment.generate_fitness()
-        environment.selection()
-        environment.replication()
-
-    
-
-if __name__ == "__main__":
-    main()
