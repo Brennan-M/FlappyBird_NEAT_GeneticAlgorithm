@@ -76,7 +76,8 @@ class Network:
         if self.chance_mutation():
             mut_factor = self.get_sign_mutation()
             new_hidden_layer_size += mut_factor
-
+            if new_hidden_layer_size == 0:
+                new_hidden_layer_size = 1
             # Generate new W1 and W2 of proper dimension
             # W1
             new_W1 = np.zeros((new_hidden_layer_size, self.in_layer_size))
@@ -119,7 +120,8 @@ class Network:
 
 
     def chance_mutation(self):
-        distance_to_first_pipe = 800
+        distance_to_first_pipe = 800.0
+        print("Fitness: {}".format(self.fitness))
         mutation_chance = np.exp(-self.fitness/distance_to_first_pipe)
         if mutation_chance >= 0.5:
             print("MUtation")

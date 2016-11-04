@@ -90,27 +90,6 @@ class Environment:
             The result is a new generation with X new progeny posed for a new round of selection
         """
 
-        # print("\n")
-        # print("\t=====================")
-        # print("\t      Selection      ")
-        # print("\t=====================")
-        # generations = self.generations[self.current_generation_number]
-
-        # max_fitness = generations[0].fitness
-        # top_network = generations[0]
-
-
-        # for network in generations:
-            
-        #     if network.fitness > max_fitness:
-        #         top_network = network
-
-        # print("\n\tTop Network: {}".format(top_network.network_ID))
-        # print("\t---------------")
-        # print("\tFitness: {}".format(top_network.fitness))
-        # #print("\tFlay Frequency: {}".format(top_network.frequency))
-        # self.top_networks.append(top_network)
-
         print("\n")
         print("\t=====================")
         print("\t      Selection      ")
@@ -136,12 +115,16 @@ class Environment:
                     sorted_ = False
 
 
-        self.top_networks = generations[int(len(generations)/2):]
+        
+        self.top_networks = generations[:int(len(generations)/2)]
+
+        for network in self.top_networks:
+            print("Fitness: {}".format(network.fitness))
 
         print("\n\tTop Networks")
         for top_net in self.top_networks:
-            print("\t Network {}".format(top_net.network_ID))
-            print("\t Fitness: {}\n".format(top_net.fitness))
+            print("\tNetwork {}".format(top_net.network_ID))
+            print("\tFitness: {}\n".format(top_net.fitness))
         
 
 
