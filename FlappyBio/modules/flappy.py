@@ -443,21 +443,21 @@ def checkCrash(player, upperPipes, lowerPipes, network):
     return [False, False]
 
 
-def pixelCollision(rect1, rect2, hitmask1, hitmask2, network):
+def pixelCollision(rect1, rect2, hitmask1, hitmask2, network, display_position=False):
     """Checks if two objects collide and not just their rects"""
+    
+    if display_position:
+        print("Player -- left : {} \t top   : {}".format(rect1.left, rect1.top))
+        print("       -- right: {} \t bottom: {}\n".format(rect1.right, rect1.bottom))
+
+        print("Pipes -- left : {} \t top   : {}".format(rect2.left, rect2.top))
+        print("       -- right: {} \t bottom: {}\n".format(rect2.right, rect2.bottom))
+        print("\n")
+
+
     rect = rect1.clip(rect2)
-    print(rect1)
-
-    print("Player -- left : {} \t top   : {}".format(rect1.left, rect1.top))
-    print("       -- right: {} \t bottom: {}\n".format(rect1.right, rect1.bottom))
-
-    print("Pipes -- left : {} \t top   : {}".format(rect2.left, rect2.top))
-    print("       -- right: {} \t bottom: {}\n".format(rect2.right, rect2.bottom))
-    print("\n")
-
     network.update(rect1, rect2)
 
-    #print("Pipes: {}".format(rect2))
 
     if rect.width == 0 or rect.height == 0:
         return False
