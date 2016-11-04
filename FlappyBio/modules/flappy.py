@@ -1,5 +1,5 @@
 from itertools import cycle
-import modules.ann_feeder as ann_feeder
+
 import random
 import sys
 
@@ -7,7 +7,7 @@ import pygame
 from pygame.locals import *
 
 
-network = ann_feeder.ann_feeder(None, None)
+
 
 FPS = 30
 SCREENWIDTH  = 288
@@ -54,12 +54,15 @@ PIPES_LIST = (
 )
 
 
-def main():
+def main(neural_network):
     global SCREEN, FPSCLOCK
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
     pygame.display.set_caption('Flappy Bird')
+
+
+    network = neural_network
 
     # numbers sprites for score display
     IMAGES['numbers'] = (
@@ -128,12 +131,14 @@ def main():
             getHitmask(IMAGES['player'][2]),
         )
 
-        movementInfo = showWelcomeAnimation()
-        crashInfo = mainGame(movementInfo)
-        showGameOverScreen(crashInfo)
+        movementInfo = showWelcomeAnimation(network)
+        crashInfo = mainGame(movementInfo, network)
+        #showGameOverScreen(crashInfo)
+
+        return crashInfo
 
 
-def showWelcomeAnimation():
+def showWelcomeAnimation(network):
     """Shows welcome screen animation of flappy bird"""
     # index of player to blit on screen
     playerIndex = 0
@@ -188,7 +193,7 @@ def showWelcomeAnimation():
         FPSCLOCK.tick(FPS)
 
 
-def mainGame(movementInfo):
+def mainGame(movementInfo, network):
 
     score = playerIndex = loopIter = 0
     playerIndexGen = movementInfo['playerIndexGen']
@@ -242,7 +247,7 @@ def mainGame(movementInfo):
 
         # check for crash here
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
-                               upperPipes, lowerPipes)
+                               upperPipes, lowerPipes, network)
 
         if crashTest[0]:
             return {
@@ -253,6 +258,7 @@ def mainGame(movementInfo):
                 'lowerPipes': lowerPipes,
                 'score': score,
                 'playerVelY': playerVelY,
+                'network': network
             }
 
         # check for score
@@ -303,6 +309,7 @@ def mainGame(movementInfo):
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
         # print score so player overlaps the score
         showScore(score)
+
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
 
         pygame.display.update()
@@ -400,7 +407,7 @@ def showScore(score):
         Xoffset += IMAGES['numbers'][digit].get_width()
 
 
-def checkCrash(player, upperPipes, lowerPipes):
+def checkCrash(player, upperPipes, lowerPipes, network):
     """returns True if player collders with base or pipes."""
     pi = player['index']
     player['w'] = IMAGES['player'][0].get_width()
@@ -427,8 +434,8 @@ def checkCrash(player, upperPipes, lowerPipes):
             lHitmask = HITMASKS['pipe'][1]
 
             # if bird collided with upipe or lpipe
-            uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask)
-            lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask)
+            uCollide = pixelCollision(playerRect, uPipeRect, pHitMask, uHitmask, network)
+            lCollide = pixelCollision(playerRect, lPipeRect, pHitMask, lHitmask, network)
 
             if uCollide or lCollide:
                 return [True, False]
@@ -436,17 +443,19 @@ def checkCrash(player, upperPipes, lowerPipes):
     return [False, False]
 
 
-def pixelCollision(rect1, rect2, hitmask1, hitmask2):
+def pixelCollision(rect1, rect2, hitmask1, hitmask2, network):
     """Checks if two objects collide and not just their rects"""
     rect = rect1.clip(rect2)
     print(rect1)
 
-    print("Player -- x_front: {} \t y_bottom: {}".format(rect1[0], rect1[1]))
-    print("       -- x_back : {} \t y_top   : {}\n".format(rect1[2], rect1[3]))
+    print("Player -- left : {} \t top   : {}".format(rect1.left, rect1.top))
+    print("       -- right: {} \t bottom: {}\n".format(rect1.right, rect1.bottom))
 
-    print("Pipes  -- x_front: {} \t y_bottom: {}".format(rect2[0], rect2[1]))
-    print("       -- x_back : {} \t y_top   : {}\n".format(rect2[2], rect2[3]))
+    print("Pipes -- left : {} \t top   : {}".format(rect2.left, rect2.top))
+    print("       -- right: {} \t bottom: {}\n".format(rect2.right, rect2.bottom))
     print("\n")
+
+    network.update(rect1, rect2)
 
     #print("Pipes: {}".format(rect2))
 
