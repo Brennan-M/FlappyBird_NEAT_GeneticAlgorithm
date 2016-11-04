@@ -166,15 +166,20 @@ def showWelcomeAnimation(network):
                 pygame.quit()
                 sys.exit()
             #if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
-        if network.predict():
+        
+        """ 
+            Start screen. Automatically begin, so take out network.predict()
+            If the net goes to constant 0 output, game will not begin
+        """
+        #if network.predict():
             
-            # make first flap sound and return values for mainGame
-            SOUNDS['wing'].play()
-            return {
-                'playery': playery + playerShmVals['val'],
-                'basex': basex,
-                'playerIndexGen': playerIndexGen,
-            }
+        # make first flap sound and return values for mainGame
+        SOUNDS['wing'].play()
+        return {
+            'playery': playery + playerShmVals['val'],
+            'basex': basex,
+            'playerIndexGen': playerIndexGen,
+        }
 
         # adjust playery, playerIndex, basex
         if (loopIter + 1) % 5 == 0:
