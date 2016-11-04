@@ -47,15 +47,21 @@ class Environment:
                 (i.e. the score it achieves playing Flappy Birds)
         """
         current_generation = self.generations[self.current_generation_number]
-        print("Generation {}".format(self.current_generation_number))
+        
+        print("\n*$-------------========================-------------$*")
+        print("\t\t   Generation {}".format(self.current_generation_number))
+        print("*$-------------========================-------------$*")
 
         for network in current_generation:
-            print("\tNetwork {}\tFlap Frequency: {}".format(network.network_ID, network.frequency))
+            print("\n\tNetwork {}".format(network.network_ID))
+            print("\t----------")
+            print("\tFlap Frequency: {}".format(network.frequency))
+
             results = flpy.main(network)
             fitness_score = results['score']
             network.set_fitness(fitness_score)
 
-            print("Fitness Score: {}".format(fitness_score))
+            print("\tFitness: {}".format(fitness_score))
 
         
         
@@ -70,7 +76,7 @@ class Environment:
                 2. Change in hidden layer neuron number (addition or substraction of a node)
             The result is a new generation with X new progeny posed for a new round of selection
         """
-        
+
         print("\n")
         print("\t=====================")
         print("\t      Selection      ")
@@ -85,7 +91,10 @@ class Environment:
             if network.fitness > max_fitness:
                 top_network = network
 
-        print("\tTop Network: {}\tFitness: {}".format(top_network.network_ID, top_network.fitness))
+        print("\n\tTop Network: {}".format(top_network.network_ID))
+        print("\t---------------")
+        print("\tFitness: {}".format(top_network.fitness))
+        print("\tFlay Frequency: {}".format(top_network.frequency))
         self.top_networks.append(top_network)
 
 
@@ -98,12 +107,15 @@ class Environment:
         print("\t     Replication     ")
         print("\t=====================")
         top_network = self.top_networks[self.current_generation_number]
-
+        print("\n\tReplicating network {}...".format(top_network.network_ID))
         child_generation = []
         for new_network_ID in range(self.networks_per_generation):
+            print("\n\tChild {}".format(new_network_ID))
+            print("\t--------")
             mutations = top_network.mutate()
             new_network = Interface(new_network_ID, self.current_generation_number+1, mutations)
             child_generation.append(new_network)
+            print("\tNew Flap Rate: {}".format(mutations))
 
         self.generations.append(child_generation)
 
