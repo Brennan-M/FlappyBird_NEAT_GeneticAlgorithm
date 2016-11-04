@@ -61,15 +61,20 @@ class Environment:
             results = flpy.main(network)
             fitness_score = results['score']
             if fitness_score == 0:
-                fitness_score = results['distance']
-                y_final = results['y']
-                y_threshold = 0
-                if y_final <= 0:
-    
+                
+              
+                
+                if results['energy'] <= 10:
                     fitness_score = 0
 
+                elif results['y'] <= 0:
+                    fitness_score = max(results['distance'] - 0.75*results['energy'] + results['y'], 0)
+                
+                else:
+                    fitness_score = max(results['distance'] - 0.1*results['energy'], 0)
+
             elif fitness_score >= 1:
-                fitness_score = fitness_score * 10000
+                fitness_score = fitness_score * 10000 - results['energy']
 
             network.set_fitness(fitness_score)
             print("\tDistance: {}".format(results['distance']))
@@ -107,7 +112,7 @@ class Environment:
             sorted_ = True
 
             for index, network in enumerate(generations[:-1]):
-                if network.fitness < generations[index+1]:
+                if network.fitness < generations[index+1].fitness:
                     temp = network
                     generations[index] = generations[index+1]
                     generations[index+1] = temp

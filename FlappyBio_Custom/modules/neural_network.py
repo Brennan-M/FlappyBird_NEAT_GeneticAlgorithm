@@ -29,8 +29,8 @@ class Network:
             self.hidden_layer_size = mutations[-1]
 
         else:
-            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)
-            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)
+            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)*0.5
+            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)*0.5
             self.b1 = 0
             self.b2 = 0
             self.hidden_layer_size = self.hidden_layer_size
@@ -48,6 +48,13 @@ class Network:
         Z1 = np.dot(self.W1, X_norm)
         Z1 = self.softmax(Z1)
         Z2 = np.dot(self.W2, Z1)
+
+        if Z2 <= 0:
+            Z2 = 0
+        else:
+            Z2 = 1
+
+        
 
         
         self.output = Z2

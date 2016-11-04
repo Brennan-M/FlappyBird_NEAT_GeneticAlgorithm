@@ -234,6 +234,7 @@ def mainGame(movementInfo, network):
     playerAccY    =   1   # players downward accleration
     playerFlapAcc =  -9   # players speed on flapping
     playerFlapped = False # True when player flaps
+    playerEnergyUsed = 0
 
     
     while True:
@@ -248,6 +249,7 @@ def mainGame(movementInfo, network):
             if playery > -2 * IMAGES['player'][0].get_height():
                 playerVelY = playerFlapAcc
                 playerFlapped = True
+                playerEnergyUsed += 10
                 SOUNDS['wing'].play()
 
         # check for crash here
@@ -264,7 +266,8 @@ def mainGame(movementInfo, network):
                 'score': score,
                 'playerVelY': playerVelY,
                 'network': network,
-                'distance': playerDistance*-1
+                'distance': playerDistance*-1,
+                'energy': playerEnergyUsed
             }
 
         # check for score

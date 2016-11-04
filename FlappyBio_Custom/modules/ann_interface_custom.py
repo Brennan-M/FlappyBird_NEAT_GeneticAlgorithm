@@ -76,11 +76,8 @@ class Interface:
 
     def predict(self):
         output = self.network.output
-        #print("Output: {}".format(output))
-        if output >= 0:
-            return True
-        else:
-            return False
+        return output
+        
         
 
 
