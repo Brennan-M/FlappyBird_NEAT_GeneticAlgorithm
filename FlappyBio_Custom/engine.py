@@ -14,6 +14,6 @@ def main(generations, organisms):
 
 if __name__ == "__main__":
     
-    generations = 100
-    organisms = 2   # number of neural nets per generation
+    generations = 100000
+    organisms = 6  # number of neural nets per generation - NOTE: Must be even number
     main(generations, organisms)

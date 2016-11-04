@@ -19,6 +19,7 @@ class Network:
             self.W2 = copy.network.W2
             self.b1 = copy.network.b1
             self.b2 = copy.network.b2
+            self.hidden_layer_size = copy.network.hidden_layer_size
 
         elif mutations:
             self.W1 = mutations[0]
@@ -32,6 +33,7 @@ class Network:
             self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)
             self.b1 = 0
             self.b2 = 0
+            self.hidden_layer_size = self.hidden_layer_size
 
         self.output = True
 
@@ -46,6 +48,7 @@ class Network:
         Z1 = np.dot(self.W1, X_norm)
         Z1 = self.softmax(Z1)
         Z2 = np.dot(self.W2, Z1)
+
         
         self.output = Z2
 
@@ -59,7 +62,10 @@ class Network:
             term = numerator / denom
             soft_max.append(term)
         return soft_max
-            
+    
+    def set_fitness(self, fitness):
+        self.fitness = fitness
+
 
     def mutate(self):
         
@@ -78,12 +84,11 @@ class Network:
                 for j in range(self.in_layer_size-1):
                     new_W1[i][j] = self.W1[i][j]
 
-
             # W2
             new_W2 = np.zeros((self.out_layer_size, new_hidden_layer_size))
             for i in range(self.out_layer_size-1):
                 for j in range(self.hidden_layer_size-1):
-                    new_W2[i][j] = self.W1[i][j]
+                    new_W2[i][j] = self.W2[i][j]
 
         # If hidden layer changes, other matrices cannot stay the same dimensions.
         else:
@@ -104,21 +109,23 @@ class Network:
             new_b1 += mut_factor
             
         
-        if self.chance_mutation():
-            mut_factor = self.get_sign_mutation() * np.random.randn(1)
-            new_b2 += mut_factor
+        else:
+            if self.chance_mutation():
+                mut_factor = self.get_sign_mutation() * np.random.randn(1)
+                new_b2 += mut_factor
 
-        
         
         return (new_W1, new_W2, new_b1, new_b2, new_hidden_layer_size)
 
 
     def chance_mutation(self):
-        mutation_chance = np.random.randint(4)
-        if mutation_chance == 0:
-            return 0
-        else:
+        distance_to_first_pipe = 800
+        mutation_chance = np.exp(-self.fitness/distance_to_first_pipe)
+        if mutation_chance >= 0.5:
+            print("MUtation")
             return 1
+        else:
+            return 0
 
     def get_sign_mutation(self):
         mutation = np.random.randint(2)

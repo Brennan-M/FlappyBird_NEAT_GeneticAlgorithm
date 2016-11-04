@@ -65,8 +65,8 @@ class Environment:
                 y_final = results['y']
                 y_threshold = 0
                 if y_final <= 0:
-                    y_final *= -1
-                    fitness_score -= np.exp(0.5*y_final)
+    
+                    fitness_score = 0
 
             elif fitness_score >= 1:
                 fitness_score = fitness_score * 10000
@@ -120,6 +120,7 @@ class Environment:
         max_fitness = generations[0].fitness
         top_network = generations[0]
 
+        """ Just pretend that bubble sort isn't being used. """
         top_networks = []
         sorted_ = False
         i = 0
@@ -135,7 +136,7 @@ class Environment:
                     sorted_ = False
 
 
-        self.top_networks = generations[:int(len(generations)/2)]
+        self.top_networks = generations[int(len(generations)/2):]
 
         print("\n\tTop Networks")
         for top_net in self.top_networks:

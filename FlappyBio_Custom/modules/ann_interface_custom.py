@@ -26,7 +26,7 @@ class Interface:
         if mutations:
             init_hidden_layer_size = mutations[-1]
         else:
-            init_hidden_layer_size = 10
+            init_hidden_layer_size = 2
         output_layer_size = 1
 
         topology = [input_layer_size, init_hidden_layer_size, output_layer_size]
@@ -37,6 +37,7 @@ class Interface:
 
     def set_fitness(self, fitness):
         self.fitness = fitness
+        self.network.set_fitness(fitness)
 
 
     def mutate(self):
