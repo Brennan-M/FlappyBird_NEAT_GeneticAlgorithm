@@ -70,6 +70,11 @@ class Environment:
                 2. Change in hidden layer neuron number (addition or substraction of a node)
             The result is a new generation with X new progeny posed for a new round of selection
         """
+        
+        print("\n")
+        print("\t=====================")
+        print("\t      Selection      ")
+        print("\t=====================")
         generations = self.generations[self.current_generation_number]
 
         max_fitness = generations[0].fitness
@@ -80,10 +85,18 @@ class Environment:
             if network.fitness > max_fitness:
                 top_network = network
 
+        print("\tTop Network: {}\tFitness: {}".format(top_network.network_ID, top_network.fitness))
         self.top_networks.append(top_network)
 
 
     def replication(self):
+        """
+
+        """
+        print("\n")
+        print("\t=====================")
+        print("\t     Replication     ")
+        print("\t=====================")
         top_network = self.top_networks[self.current_generation_number]
 
         child_generation = []
@@ -103,7 +116,7 @@ def main():
     
     environment = Environment(2)
 
-    for _ in range(10):
+    for generation in range(10):
 
         environment.generate_fitness()
         environment.selection()
