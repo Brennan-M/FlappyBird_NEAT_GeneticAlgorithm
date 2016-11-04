@@ -26,7 +26,7 @@ class Interface:
         if mutations:
             init_hidden_layer_size = mutations[-1]
         else:
-            init_hidden_layer_size = 6
+            init_hidden_layer_size = 4
         output_layer_size = 1
 
         topology = [input_layer_size, init_hidden_layer_size, output_layer_size]

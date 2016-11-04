@@ -1,5 +1,4 @@
 from itertools import cycle
-
 import random
 import sys
 
@@ -111,6 +110,7 @@ def main(neural_network):
         )
 
         # select random pipe sprites
+        random.seed(5)
         pipeindex = random.randint(0, len(PIPES_LIST) - 1)
         IMAGES['pipe'] = (
             pygame.transform.rotate(
@@ -390,6 +390,7 @@ def playerShm(playerShm):
 
 def getRandomPipe():
     """returns a randomly generated pipe"""
+    random.seed(5)
     # y of gap between upper and lower pipe
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)

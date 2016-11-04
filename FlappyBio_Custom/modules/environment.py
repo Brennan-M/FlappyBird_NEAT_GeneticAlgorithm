@@ -68,10 +68,10 @@ class Environment:
                     fitness_score = 0
 
                 elif results['y'] <= 0:
-                    fitness_score = max(results['distance'] - 0.75*results['energy'] + results['y'], 0)
+                    fitness_score = max(results['distance'] - results['energy'] + results['y'], 0)
                 
                 else:
-                    fitness_score = max(results['distance'] - 0.1*results['energy'], 0)
+                    fitness_score = max(results['distance'] - 0.2*results['energy'], 0)
 
             elif fitness_score >= 1:
                 fitness_score = fitness_score * 10000 - results['energy']

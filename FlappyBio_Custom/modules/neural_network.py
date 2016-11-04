@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.preprocessing import normalize
-#from modules.neuron import *
 
 
 class Network:
@@ -29,8 +28,8 @@ class Network:
             self.hidden_layer_size = mutations[-1]
 
         else:
-            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)*0.5
-            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)*0.5
+            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)
+            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)
             self.b1 = 0
             self.b2 = 0
             self.hidden_layer_size = self.hidden_layer_size
@@ -54,9 +53,6 @@ class Network:
         else:
             Z2 = 1
 
-        
-
-        
         self.output = Z2
 
 
@@ -80,9 +76,10 @@ class Network:
         new_b2 = self.b2
 
         new_hidden_layer_size = self.hidden_layer_size
-        if self.chance_mutation():
+        mutation = self.chance_mutation()
+        if mutation[0]:
             mut_factor = self.get_sign_mutation()
-            new_hidden_layer_size += mut_factor
+            new_hidden_layer_size += mut_factor*mutation[1]
             if new_hidden_layer_size == 0:
                 new_hidden_layer_size = 1
             # Generate new W1 and W2 of proper dimension
@@ -102,39 +99,47 @@ class Network:
         else:
             new_W1 = self.W1
             new_W2 = self.W2
-            if self.chance_mutation():
+            mutation = self.chance_mutation()
+            if mutation[0]:
                 mut_factor = np.random.randn(self.hidden_layer_size, self.in_layer_size)
-                new_W1 += mut_factor
+                new_W1 += mut_factor*mutation[1]
             
-        
-            if self.chance_mutation():
+            mutation = self.chance_mutation()
+            if mutation[0]:
                 mut_factor = np.random.randn(self.out_layer_size, self.hidden_layer_size)
-                new_W2 += mut_factor
+                new_W2 += mut_factor*mutation[1]
             
-        
-        if self.chance_mutation():
+        mutation = self.chance_mutation()
+        if mutation[0]:
             mut_factor = self.get_sign_mutation() * np.random.randn(1)
-            new_b1 += mut_factor
+            new_b1 += mut_factor*mutation[1]
             
         
         else:
-            if self.chance_mutation():
+            mutation = self.chance_mutation()
+            if mutation[0]:
                 mut_factor = self.get_sign_mutation() * np.random.randn(1)
-                new_b2 += mut_factor
+                new_b2 += mut_factor*mutation[1]
 
         
         return (new_W1, new_W2, new_b1, new_b2, new_hidden_layer_size)
 
 
     def chance_mutation(self):
-        distance_to_first_pipe = 800.0
+        factor = 800.0
         print("Fitness: {}".format(self.fitness))
-        mutation_chance = np.exp(-self.fitness/distance_to_first_pipe)
-        if mutation_chance >= 0.5:
-            print("MUtation")
-            return 1
+
+        fitness_factor = np.exp(-self.fitness/factor)
+        if fitness_factor >= 0.5:
+            print("Mutation")
+            return 1, 1
         else:
-            return 0
+            mutation_chance = np.random.randint(6)
+            if mutation_chance == 0:
+                return 1, 0.5
+            else:
+                return 0, 1
+            
 
     def get_sign_mutation(self):
         mutation = np.random.randint(2)
@@ -143,12 +148,3 @@ class Network:
         else:
             return -1
 
-
-
-
-
-
-class Neuron:
-
-    def __init__(self):
-        pass
