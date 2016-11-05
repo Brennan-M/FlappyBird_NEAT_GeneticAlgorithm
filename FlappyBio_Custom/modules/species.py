@@ -2,6 +2,30 @@ import numpy as np
 import modules.flappy as flpy
 from modules.ann_interface_custom import *
 
+"""
+Species Class
+-------------
+
+This class tracks each species and its generations through selection.
+
+This is also where the fitness, selection, and replication functionality is held.
+
+Each species object is initialized with a parent generation with randomly generated networks (neural_network.py)
+
+The sequence from engine.py is, for each network in current generation:
+
+    1. Generate Fitness
+        results = flpy.main(network) applies the current network to the game and generates results
+        These results are used to generate the network's fitness.
+
+    2. Selection
+        The top networks are selected to be reproduced
+
+    3. Replication
+        The top networks chosen in step 2 are replicated with mutation and stored as the progeny, the next generation
+        The generation number is incremented, and this process repeats
+
+"""
 
 class Species:
 
@@ -25,9 +49,6 @@ class Species:
         # Initialize list to contain top networks of each generation
         self.top_networks = []
 
-        
-
-          
 
     def _init_parent_(self):
         """
@@ -91,8 +112,6 @@ class Species:
             print("\tFitness: {}".format(fitness_score))
 
         
-        
-
 
     def selection(self):
         """
@@ -139,7 +158,6 @@ class Species:
         
 
 
-
     def replication(self):
         """
 
@@ -183,7 +201,6 @@ class Species:
             return True
         else:
             return False
-
 
 
 

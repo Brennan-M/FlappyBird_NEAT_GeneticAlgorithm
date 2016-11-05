@@ -1,14 +1,37 @@
 import numpy as np
+import math
 from sklearn.preprocessing import normalize
 
+"""
+Network Class
+-------------
+
+This is the stand-in for TensorFlow.
+
+It constructs the neural network as an input layer, 1 hidden layer (of variable size), and output layer.
+
+Consequently, there are 2 weight matrices, W1 and W2, as well as two bias neurons, b1 and b2.
+
+The matrices are initialied randomly with np.random.randn(rows, cols).
+
+Feedforward takes the input vector and feeds it through the network, producing an output (flap or not)
+    Input vector is normalized
+    Hidden layer activation function: sigmoid
+    Output layer activation function: sigmoid
+
+
+Mutate is used to generate a progeny network from the self parameters.
+    Either W1, W2, b1, b2, or number of hidden layer neurons can be altered in one mutation event.
+    If number of hidden layers change, W1 and W2 are changed appropriately.
+
+
+"""
 
 class Network:
 
     def __init__(self, topology, mutations=None, copy=None):
         
         self.topology = topology
-        
-          
 
         if copy:
             print("Copying...")
@@ -31,8 +54,8 @@ class Network:
             self.hidden_layer_size = topology[1]
             self.out_layer_size = topology[2] 
             
-            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size) * 50
-            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size) * 50
+            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)
+            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)
             self.b1 = 1
             self.b2 = 1
             
@@ -40,56 +63,29 @@ class Network:
         self.output = True
 
 
-    # def feed_forward(self, X):
-
-    #     # Normalize Input
-    #     norm1 = X / np.linalg.norm(X)
-    #     X_norm = normalize(X[:,np.newaxis], axis=0).ravel()
-        
-    #     # Feed forward
-    #     Z1 = np.dot(self.W1, X_norm)
-    #     Z1 = self.softmax(Z1)
-    #     Z2 = np.dot(self.W2, Z1)
-    #     print("Z2: {}".format(Z2))
-    #     if Z2 <= 0:
-    #         Z2 = 0
-    #     else:
-    #         Z2 = 1
-
-    #     self.output = Z2
-
-
-    # def feed_forward(self, X):
-
-        
-        
-    #     # Feed forward
-    #     Z1 = np.dot(self.W1, X)
-        
-    #     Z1 = self.sigmoid(Z1)
-    #     #Z1 = self.softmax(Z1)
-    #     Z2 = np.dot(self.W2, Z1)
-        
-    #     if Z2 <= 0:
-    #         Z2 = 0
-    #     else:
-    #         Z2 = 1
-
-    #     self.output = Z2
-
 
     def feed_forward(self, X):
 
         # Normalize Input
         norm1 = X / np.linalg.norm(X)
         X_norm = normalize(X[:,np.newaxis], axis=0).ravel()
-        
+        print("X_norm: {}\n".format(X_norm))
+        print("self.b1: {}\n".format(self.b1))
+
         # Feed forward
-        Z1 = np.dot(self.W1, X_norm)
+        Z1 = np.dot(self.W1, X_norm) + self.b1
+        print("Z1: {}\n".format(Z1))
         
+        # Sigmoid on Z1
         Z1 = self.sigmoid(Z1)
-        #Z1 = self.softmax(Z1)
-        Z2 = np.dot(self.W2, Z1)
+        print("Z1 sig: {}\n".format(Z1))
+        print("self.b2: {}\n".format(self.b2))
+
+        # Calculate output layer output
+        Z2 = np.dot(self.W2, Z1) + self.b2
+        print("Z2: {}\n\n".format(Z2))
+        Z2 = self.sigmoid(Z2)
+        
         
         if Z2 <= 0:
             Z2 = 0
@@ -101,16 +97,9 @@ class Network:
 
     def sigmoid(self, Z):
         return 1 / (1 + np.exp(-Z))
-
-
-    def softmax(self, Z):
-        soft_max = []
-        for z in Z:
-            numerator = np.exp(z)
-            denom = np.sum(np.exp(Z))
-            term = numerator / denom
-            soft_max.append(term)
-        return soft_max
+       
+    def tanh(self, Z):
+        return np.tanh(Z)
     
 
     def set_fitness(self, fitness):
