@@ -26,7 +26,7 @@ class Interface:
         if mutations:
             init_hidden_layer_size = mutations[-1]
         else:
-            init_hidden_layer_size = 4
+            init_hidden_layer_size = 6
         output_layer_size = 1
 
         topology = [self.input_layer_size, init_hidden_layer_size, output_layer_size]
@@ -71,18 +71,18 @@ class Interface:
         
        
 
-        print("\nNN Inputs")
-        print("\tPlayer top: {}".format(X[0]))
-        print("\tPlayer bottom: {}".format(X[1]))
-        print("\tPlayer left: {}".format(X[2]))
-        print("\tPipes right: {}".format(X[3]))
-        print("\t---------------")
-        print("\tUpper Pipes bottom: {}".format(X[4]))
-        print("\tLower Pipes top: {}".format(X[5]))
-        print("\tPipes left: {}".format(X[6]))
-        print("\tPipes right: {}".format(X[7]))
+        # print("\nNN Inputs")
+        # print("\tPlayer top: {}".format(X[0]))
+        # print("\tPlayer bottom: {}".format(X[1]))
+        # print("\tPlayer left: {}".format(X[2]))
+        # print("\tPipes right: {}".format(X[3]))
+        # print("\t---------------")
+        # print("\tUpper Pipes bottom: {}".format(X[4]))
+        # print("\tLower Pipes top: {}".format(X[5]))
+        # print("\tPipes left: {}".format(X[6]))
+        # print("\tPipes right: {}".format(X[7]))
         
-        print("\n")
+        # print("\n")
         self.network.feed_forward(X)
 
 

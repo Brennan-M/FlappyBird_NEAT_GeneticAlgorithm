@@ -28,10 +28,10 @@ class Network:
             self.hidden_layer_size = mutations[-1]
 
         else:
-            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size)
-            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size)
-            self.b1 = 0
-            self.b2 = 0
+            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size) * 0.5
+            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size) * 0.5
+            self.b1 = 1
+            self.b2 = 1
             self.hidden_layer_size = self.hidden_layer_size
 
         self.output = True
@@ -72,79 +72,73 @@ class Network:
 
     def mutate(self):
         
-        new_b1 = self.b1
-        new_b2 = self.b2
+        network_elements = [self.W1, self.W2, self.b1, self.b2, self.hidden_layer_size]
+        elements_size = len(network_elements)
 
-        new_hidden_layer_size = self.hidden_layer_size
-        mutation = self.chance_mutation()
-        if mutation[0]:
-            mut_factor = self.get_sign_mutation()
-            new_hidden_layer_size += mut_factor*mutation[1]
-            if new_hidden_layer_size == 0:
-                new_hidden_layer_size = 1
-            # Generate new W1 and W2 of proper dimension
-            # W1
-            new_W1 = np.zeros((new_hidden_layer_size, self.in_layer_size))
-            for i in range(self.hidden_layer_size-1):
-                for j in range(self.in_layer_size-1):
-                    new_W1[i][j] = self.W1[i][j]
+        #mutation_index = np.random.randint(elements_size)
+        mutation_index = 4
+        mutation_element = network_elements[mutation_index]
 
-            # W2
-            new_W2 = np.zeros((self.out_layer_size, new_hidden_layer_size))
-            for i in range(self.out_layer_size-1):
-                for j in range(self.hidden_layer_size-1):
-                    new_W2[i][j] = self.W2[i][j]
+        # Weight matrix mutation
+        if mutation_index == 0 or mutation_index == 1:
+            self.mutate_W(mutation_element)
 
-        # If hidden layer changes, other matrices cannot stay the same dimensions.
-        else:
-            new_W1 = self.W1
-            new_W2 = self.W2
-            mutation = self.chance_mutation()
-            if mutation[0]:
-                mut_factor = np.random.randn(self.hidden_layer_size, self.in_layer_size)
-                new_W1 += mut_factor*mutation[1]
-            
-            mutation = self.chance_mutation()
-            if mutation[0]:
-                mut_factor = np.random.randn(self.out_layer_size, self.hidden_layer_size)
-                new_W2 += mut_factor*mutation[1]
-            
-        mutation = self.chance_mutation()
-        if mutation[0]:
-            mut_factor = self.get_sign_mutation() * np.random.randn(1)
-            new_b1 += mut_factor*mutation[1]
-            
+        elif mutation_index == 2 or mutation_index == 3:
+            self.mutate_b(mutation_element)
+
+        elif mutation_index == 4:
+            self.mutate_hidden_layer(self.W1, self.W2, mutation_element)
         
+        return network_elements
+
+
+
+    def mutate_W(self, element):
+        num_rows = len(element)
+        num_cols = len(element[0])
+        
+        mutation_row = np.random.randint(num_rows)
+        mutation_col = np.random.randint(num_cols)
+        #print("Mutation at {},{}: {}".format(mutation_row, mutation_col, element[mutation_row][mutation_col]))
+        
+        mutation = np.random.randn(1)
+        #print("Mutation: {}".format(mutation))
+        element[mutation_row][mutation_col] += mutation
+        #print("Post Mutation at {},{}: {}".format(mutation_row, mutation_col, element[mutation_row][mutation_col]))
+        
+
+    def mutate_b(self, element):
+        mutation = np.random.randn(1)
+        element += mutation
+        
+
+    def mutate_hidden_layer(self, W1, W2, element):
+        
+
+        if np.random.randn(1) >= 0:
+            node_change = 1
         else:
-            mutation = self.chance_mutation()
-            if mutation[0]:
-                mut_factor = self.get_sign_mutation() * np.random.randn(1)
-                new_b2 += mut_factor*mutation[1]
+            if element > 1:
+                node_change = -1
+
+        element += node_change
 
         
-        return (new_W1, new_W2, new_b1, new_b2, new_hidden_layer_size)
+        # Update W1
+        W1_num_cols = len(W1[0])
+        new_W1 = np.random.randn(element, W1_num_cols)
+        for row_i, row in enumerate(new_W1[:element]):
+            for col_i, ele in enumerate(row):
+                new_W1[row_i][col_i] = ele
+
+        W1 = new_W1
 
 
-    def chance_mutation(self):
-        factor = 800.0
-        print("Fitness: {}".format(self.fitness))
-
-        fitness_factor = np.exp(-self.fitness/factor)
-        if fitness_factor >= 0.5:
-            print("Mutation")
-            return 1, 1
-        else:
-            mutation_chance = np.random.randint(6)
-            if mutation_chance == 0:
-                return 1, 0.5
-            else:
-                return 0, 1
+        # Update W2
+        new_W2 = np.random.randn(1, element)
+        for index, col in enumerate(new_W2[0][:element]):
+            new_W2[0][index] = col
             
-
-    def get_sign_mutation(self):
-        mutation = np.random.randint(2)
-        if mutation == 0:
-            return 1
-        else:
-            return -1
-
+        W2 = new_W2
+        
+                

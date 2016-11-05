@@ -92,6 +92,9 @@ def main(neural_network):
     IMAGES['organism'] = pygame.image.load('assets/sprites/organism.png').convert_alpha()
     IMAGES['generation'] = pygame.image.load('assets/sprites/generation.png').convert_alpha()
 
+    # scores display
+    IMAGES['scores'] = pygame.image.load('assets/sprites/scores.png').convert_alpha()
+
     # sounds
     if 'win' in sys.platform:
         soundExt = '.wav'
@@ -460,9 +463,9 @@ def showMetric(energy, x_position=4, y_position=0.9, text=None):
         Xoffset += IMAGES['numbers'][digit].get_width()
 
     if text == "energy":
-        SCREEN.blit(IMAGES[text], (20, 420))
+        SCREEN.blit(IMAGES[text], (25, 410))
     elif text == "distance":
-        SCREEN.blit(IMAGES[text], (120, 413))
+        SCREEN.blit(IMAGES[text], (128, 410))
 
 
 def showScore(score):
@@ -478,6 +481,8 @@ def showScore(score):
     for digit in scoreDigits:
         SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.1))
         Xoffset += IMAGES['numbers'][digit].get_width()
+
+    SCREEN.blit(IMAGES['scores'], (75, 10))
 
 
 def checkCrash(player, upperPipes, lowerPipes, network):
