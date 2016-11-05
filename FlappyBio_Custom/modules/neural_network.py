@@ -31,13 +31,51 @@ class Network:
             self.hidden_layer_size = topology[1]
             self.out_layer_size = topology[2] 
             
-            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size) * 2
-            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size) * 2
+            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size) * 50
+            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size) * 50
             self.b1 = 1
             self.b2 = 1
             
 
         self.output = True
+
+
+    # def feed_forward(self, X):
+
+    #     # Normalize Input
+    #     norm1 = X / np.linalg.norm(X)
+    #     X_norm = normalize(X[:,np.newaxis], axis=0).ravel()
+        
+    #     # Feed forward
+    #     Z1 = np.dot(self.W1, X_norm)
+    #     Z1 = self.softmax(Z1)
+    #     Z2 = np.dot(self.W2, Z1)
+    #     print("Z2: {}".format(Z2))
+    #     if Z2 <= 0:
+    #         Z2 = 0
+    #     else:
+    #         Z2 = 1
+
+    #     self.output = Z2
+
+
+    # def feed_forward(self, X):
+
+        
+        
+    #     # Feed forward
+    #     Z1 = np.dot(self.W1, X)
+        
+    #     Z1 = self.sigmoid(Z1)
+    #     #Z1 = self.softmax(Z1)
+    #     Z2 = np.dot(self.W2, Z1)
+        
+    #     if Z2 <= 0:
+    #         Z2 = 0
+    #     else:
+    #         Z2 = 1
+
+    #     self.output = Z2
 
 
     def feed_forward(self, X):
@@ -48,9 +86,11 @@ class Network:
         
         # Feed forward
         Z1 = np.dot(self.W1, X_norm)
-        Z1 = self.softmax(Z1)
+        
+        Z1 = self.sigmoid(Z1)
+        #Z1 = self.softmax(Z1)
         Z2 = np.dot(self.W2, Z1)
-
+        
         if Z2 <= 0:
             Z2 = 0
         else:
@@ -58,6 +98,9 @@ class Network:
 
         self.output = Z2
 
+
+    def sigmoid(self, Z):
+        return 1 / (1 + np.exp(-Z))
 
 
     def softmax(self, Z):
@@ -108,14 +151,14 @@ class Network:
         mutation_col = np.random.randint(num_cols)
         #print("Mutation at {},{}: {}".format(mutation_row, mutation_col, element[mutation_row][mutation_col]))
         
-        mutation = np.random.randn(1)*3
+        mutation = np.random.randn(1) * 50
         #print("Mutation: {}".format(mutation))
         element[mutation_row][mutation_col] += mutation
         #print("Post Mutation at {},{}: {}".format(mutation_row, mutation_col, element[mutation_row][mutation_col]))
         
 
     def mutate_b(self, element):
-        mutation = np.random.randn(1)*3
+        mutation = np.random.randn(1) * 50
         element += mutation
         
 
@@ -141,7 +184,7 @@ class Network:
 
 
         # Update W2
-        new_W2 = np.random.randn(1, element)
+        new_W2 = np.random.randn(1, element) * 50
         for index, col in enumerate(new_W2[0][:element]):
             new_W2[0][index] = col
             
