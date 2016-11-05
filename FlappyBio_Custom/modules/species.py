@@ -3,9 +3,12 @@ import modules.flappy as flpy
 from modules.ann_interface_custom import *
 
 
-class Environment:
+class Species:
 
-    def __init__(self, networks_per_generation=10):
+    def __init__(self, networks_per_generation=10, species_ID=0):
+
+        self.species_ID = species_ID
+
 
         # Set number of networks in each generation
         self.networks_per_generation = networks_per_generation
@@ -22,8 +25,9 @@ class Environment:
         # Initialize list to contain top networks of each generation
         self.top_networks = []
 
-
         
+
+          
 
     def _init_parent_(self):
         """
@@ -36,9 +40,10 @@ class Environment:
         parent_gen = []
         for network_ID in range(self.networks_per_generation):
             generation_ID = 0
-            parent_gen.append(Interface(network_ID, generation_ID))
+            parent_gen.append(Interface(network_ID, generation_ID, speciesID=self.species_ID))
 
         self.generations.append(parent_gen)
+        
 
 
     def generate_fitness(self):
@@ -60,19 +65,23 @@ class Environment:
 
             results = flpy.main(network)
             fitness_score = results['score']
+
+            # Check if not scored even 1 point
             if fitness_score == 0:
                 
-              
-                
-                if results['energy'] <= 10:
+                # Check if bird flaps only once then eats it. This is fitness = 0!
+                if results['groundCrash']:
                     fitness_score = 0
 
+                # Check if bird flies above map. This is never good, so fitness = 0!
                 elif results['y'] <= 0:
-                    fitness_score = max(results['distance'] - results['energy'] + results['y'], 0)
+                    fitness_score = 0
                 
+                # Bird is doing something reasonable. Now we want to select for minimal energy expenditure and max distance
                 else:
-                    fitness_score = max(results['distance'] - 0.2*results['energy'], 0)
+                    fitness_score = max(results['distance'] - 2*results['energy'], 0)
 
+            # At least 1 point has been scored.
             elif fitness_score >= 1:
                 fitness_score = fitness_score * 10000 - results['energy']
 
@@ -118,13 +127,10 @@ class Environment:
                     generations[index+1] = temp
     
                     sorted_ = False
-
-
         
         self.top_networks = generations[:int(len(generations)/2)]
 
-        for network in self.top_networks:
-            print("Fitness: {}".format(network.fitness))
+        
 
         print("\n\tTop Networks")
         for top_net in self.top_networks:
@@ -150,10 +156,10 @@ class Environment:
             print("\t-----------------")
             print("\tFitness: {}".format(top_network.fitness))
             mutations = top_network.mutate()
-            new_network = Interface(new_net_ID, self.current_generation_number+1, mutations)
+            new_network = Interface(new_net_ID, self.current_generation_number+1, self.species_ID, mutations)
             new_net_ID += 1
 
-            top_network_copy = Interface(new_net_ID, self.current_generation_number+1, copy=top_network)
+            top_network_copy = Interface(new_net_ID, self.current_generation_number+1, self.species_ID, copy=top_network)
             new_net_ID += 1
 
             progeny.append(new_network)
@@ -163,4 +169,43 @@ class Environment:
         self.generations.append(progeny)
 
         self.current_generation_number += 1
-        
+
+
+    def check_extinct(self):
+
+        all_zero_fitness = True
+        for network in self.generations[self.current_generation_number]:
+
+            if network.fitness != 0:
+                all_zero_fitness = False
+
+        if all_zero_fitness:
+            return True
+        else:
+            return False
+
+
+
+
+    def expand_population(self, organisms):
+        print("\n\n\tExpanding population...\n")
+
+    
+        for network in self.generations[self.current_generation_number]:
+            if network.fitness > 0:
+                successful_network = network
+
+        progeny = [successful_network, successful_network]
+
+        for organism_ID in range(organisms-2):
+            mutations = successful_network.mutate()
+            new_network = Interface(organism_ID, self.current_generation_number+1, self.species_ID, mutations)
+            progeny.append(new_network)
+            
+
+        self.generations.append(progeny)
+        self.current_generation_number += 1
+
+
+
+

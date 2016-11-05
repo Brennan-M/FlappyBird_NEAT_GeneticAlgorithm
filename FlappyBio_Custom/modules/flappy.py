@@ -95,6 +95,9 @@ def main(neural_network):
     # scores display
     IMAGES['scores'] = pygame.image.load('assets/sprites/scores.png').convert_alpha()
 
+    # Species number
+    IMAGES['species'] = pygame.image.load('assets/sprites/species.png').convert_alpha()
+
     # sounds
     if 'win' in sys.platform:
         soundExt = '.wav'
@@ -336,9 +339,11 @@ def mainGame(movementInfo, network):
         showMetric(playerDistance*-1, 1.4, text="distance")
 
         # print network info
-        #showNetwork(network.network_ID, x_position=1, y_position=0.7, text="organism")
         showNetwork(network.network_ID, playerDistance*-1, y_position=0.7, text="organism")
         showNetwork(network.generation_ID, x_position=0.999, y_position=0.7, text="generation")
+
+        # print species ID:
+        showSpeciesID(network.species_ID, x_position=0.999, y_position=0.04, text="species")
 
 
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
@@ -446,6 +451,24 @@ def showNetwork(ID, x_position=4, y_position=0.9, text=None):
         SCREEN.blit(IMAGES[text], (-8, 395))
     elif text == "generation":
         SCREEN.blit(IMAGES[text], (180, 395))
+
+
+def showSpeciesID(species, x_position=4, y_position=0.9, text=None):
+    """displays score in center of screen"""
+    scoreDigits = [int(x) for x in list(str(species))]
+    totalWidth = 0 # total width of all numbers to be printed
+
+    for digit in scoreDigits:
+        totalWidth += IMAGES['numbers'][digit].get_width()
+
+    Xoffset = (SCREENWIDTH - totalWidth) / x_position
+
+    for digit in scoreDigits:
+        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * y_position + 10))
+        Xoffset += IMAGES['numbers'][digit].get_width()
+
+    SCREEN.blit(IMAGES[text], (240, 0))
+    
 
 
 def showMetric(energy, x_position=4, y_position=0.9, text=None):

@@ -8,12 +8,11 @@ class Network:
         
         self.topology = topology
         
-        self.in_layer_size = topology[0]
-        self.hidden_layer_size = topology[1]
-        self.out_layer_size = topology[2]   
+          
 
         if copy:
-            print("Copy: {}".format(copy))
+            print("Copying...")
+            print("Hidden layer size: {}".format(copy.network.hidden_layer_size))
             self.W1 = copy.network.W1
             self.W2 = copy.network.W2
             self.b1 = copy.network.b1
@@ -28,11 +27,15 @@ class Network:
             self.hidden_layer_size = mutations[-1]
 
         else:
-            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size) * 0.5
-            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size) * 0.5
+            self.in_layer_size = topology[0]
+            self.hidden_layer_size = topology[1]
+            self.out_layer_size = topology[2] 
+            
+            self.W1 = np.random.randn(self.hidden_layer_size, self.in_layer_size) * 2
+            self.W2 = np.random.randn(self.out_layer_size, self.hidden_layer_size) * 2
             self.b1 = 1
             self.b2 = 1
-            self.hidden_layer_size = self.hidden_layer_size
+            
 
         self.output = True
 
@@ -66,6 +69,7 @@ class Network:
             soft_max.append(term)
         return soft_max
     
+
     def set_fitness(self, fitness):
         self.fitness = fitness
 
@@ -75,18 +79,21 @@ class Network:
         network_elements = [self.W1, self.W2, self.b1, self.b2, self.hidden_layer_size]
         elements_size = len(network_elements)
 
-        #mutation_index = np.random.randint(elements_size)
-        mutation_index = 4
+        mutation_index = np.random.randint(elements_size)
+        
         mutation_element = network_elements[mutation_index]
 
         # Weight matrix mutation
         if mutation_index == 0 or mutation_index == 1:
+            print("\n\tMutation to Weight Matrix.\n")
             self.mutate_W(mutation_element)
 
         elif mutation_index == 2 or mutation_index == 3:
+            print("\n\tMutation to Bias.\n")
             self.mutate_b(mutation_element)
 
         elif mutation_index == 4:
+            print("\n\tMutation to Hidden Layer.\n")
             self.mutate_hidden_layer(self.W1, self.W2, mutation_element)
         
         return network_elements
@@ -101,19 +108,18 @@ class Network:
         mutation_col = np.random.randint(num_cols)
         #print("Mutation at {},{}: {}".format(mutation_row, mutation_col, element[mutation_row][mutation_col]))
         
-        mutation = np.random.randn(1)
+        mutation = np.random.randn(1)*3
         #print("Mutation: {}".format(mutation))
         element[mutation_row][mutation_col] += mutation
         #print("Post Mutation at {},{}: {}".format(mutation_row, mutation_col, element[mutation_row][mutation_col]))
         
 
     def mutate_b(self, element):
-        mutation = np.random.randn(1)
+        mutation = np.random.randn(1)*3
         element += mutation
         
 
     def mutate_hidden_layer(self, W1, W2, element):
-        
 
         if np.random.randn(1) >= 0:
             node_change = 1

@@ -6,9 +6,10 @@ import modules.neural_network as ann
 
 class Interface:
 
-    def __init__(self, net_ID, gen_ID, mutations=None, copy=None):
+    def __init__(self, net_ID, gen_ID, speciesID, mutations=None, copy=None):
         self.network_ID = net_ID
         self.generation_ID = gen_ID
+        self.species_ID = speciesID
         self.fitness = None
         
         random.seed(datetime.now())
@@ -26,7 +27,8 @@ class Interface:
         if mutations:
             init_hidden_layer_size = mutations[-1]
         else:
-            init_hidden_layer_size = 6
+            random_size = np.random.randint(12) + 4
+            init_hidden_layer_size = random_size
         output_layer_size = 1
 
         topology = [self.input_layer_size, init_hidden_layer_size, output_layer_size]
