@@ -40,6 +40,10 @@ TF py code example
 ------------------------------------------------------------------------------------------------
 How To Standardize Data for Neural Networks
     https://visualstudiomagazine.com/articles/2014/01/01/how-to-standardize-data-for-neural-networks.aspx
+
+------------------------------------------------------------------------------------------------
+TF Slicing based on variable
+    http://stackoverflow.com/questions/34002591/tensorflow-slicing-based-on-variable
 """
 
 class Network:

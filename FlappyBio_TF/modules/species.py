@@ -175,12 +175,11 @@ class Species:
             print("\tFitness: {}".format(top_network.fitness))
             mutations = top_network.mutate()
 
-
-
             new_network_1 = Interface(new_net_ID, self.current_generation_number+1, self.species_ID, mutation=mutations)
+            new_net_ID += 1
+
             new_network_2 = Interface(new_net_ID, self.current_generation_number+1, self.species_ID, mutation=mutations)
-            
-            new_net_ID += 2
+            new_net_ID += 1
 
             progeny.append(new_network_1)
             progeny.append(new_network_2)
