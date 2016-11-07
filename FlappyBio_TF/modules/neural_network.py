@@ -178,7 +178,7 @@ class Network:
 
     def mutate_W(self):
         # Declare new mutation variables
-        delta_w = tf.constant(1.0)
+        delta_w = tf.constant(0.05)
 
         mutate_index = np.random.randint(9)
 
