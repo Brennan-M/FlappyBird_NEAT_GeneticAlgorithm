@@ -70,28 +70,29 @@ class Network:
             self.num_hidden_layers = 0
 
 
-        if copy:
-            self.__copy__()
+       
         
-        else:
-            self._init_(topology[0], topology[-1], mutations=mutation)
+        self._init_(topology[0], topology[-1], copy, mutation)
             
             
 
-    def _init_(self, input_size, output_size, activation="relu", mutations=None):
+    def _init_(self, input_size, output_size, copy=False, mutations=None, activation="relu"):
         
         # Place Holders
         self.x = tf.placeholder(tf.float32, shape=[1, input_size])
 
         # Variables
-        if not mutations:
+        if copy:
+            self.W = copy.network.W
+            self.b = copy.network.b
+
+        elif mutations and not copy:
+            self.mutate()       
+        
+        elif not mutations:
             self.W = tf.Variable(tf.random_normal((input_size, output_size)))
             self.b = tf.Variable(tf.zeros(output_size))
-
-        elif mutations:
-            self.W = mutations[0]    
-            self.b = mutations[1]        
-        
+            
 
 
         # Initialize output 
@@ -112,9 +113,6 @@ class Network:
 
       
         
-
-    def __copy__(self):
-        pass
 
 
     def norm_input(self, X, norm_type='other'):
@@ -159,7 +157,7 @@ class Network:
 
 
     def mutate(self):
-        network_elements = [self.W, self.b]
+        
         mutations = [self.mutate_W(), self.mutate_b()]
         mutate = random.uniform(0, 1)
 
@@ -173,7 +171,7 @@ class Network:
                 print("Mutate b!")
                 mutations[mutate_index]
         
-        return network_elements
+        
 
 
     def mutate_W(self):

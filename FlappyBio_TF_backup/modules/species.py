@@ -59,9 +59,7 @@ class Species:
         parent_gen = []
         for network_ID in range(self.networks_per_generation):
             generation_ID = 0
-            ID = {"network": network_ID, "generation": generation_ID, "species": self.species_ID}
-
-            parent_gen.append(Network(ID))
+            parent_gen.append(Interface(network_ID, generation_ID, self.species_ID))
 
         self.generations.append(parent_gen)
         
@@ -82,8 +80,8 @@ class Species:
         for network in current_generation:
             print("\n\tNetwork {}".format(network.network_ID))
             print("\t----------")
-            print("\tTopology: {}".format(network.topology))
-            print("\tParent's Fitness: {}".format(network.parent_fitness))
+            print("\tTopology: {}".format(network.network.topology))
+            print("\tParent's Fitness: {}".format(network.network.parent_fitness))
 
             results = flpy.main(network)
             fitness_score = results['score']
@@ -180,13 +178,13 @@ class Species:
             
 
             new_gen_num = self.current_generation_number+1
-            ID = {"network": new_net_ID, "generation": new_gen_num, "species": self.species_ID}
+
             # Recopy parent, just to keep good run in history
-            new_network_1 = Network(ID, parent_fitness, top_network, mutation=False)
+            new_network_1 = Interface(new_net_ID, new_gen_num, self.species_ID, parent_fitness, top_network, mutation=False)
             new_net_ID += 1
 
 
-            new_network_2 = Network(ID, parent_fitness, top_network, mutation=True)
+            new_network_2 = Interface(new_net_ID, new_gen_num, self.species_ID, parent_fitness, top_network, mutation=True)
             new_net_ID += 1
 
             progeny.append(new_network_1)
