@@ -83,7 +83,10 @@ class Species:
             print("\n\tNetwork {}".format(network.network_ID))
             print("\t----------")
             print("\tTopology: {}".format(network.topology))
-            print("\tParent's Fitness: {}".format(network.parent_fitness))
+            try:
+                print("\tParent's Fitness: {}".format(network.parent_fitness))
+            except:
+                pass
 
             results = flpy.main(network)
             fitness_score = results['score']
@@ -155,6 +158,7 @@ class Species:
         
 
         print("\n\tTop Networks")
+        print("\t-----------")
         for top_net in self.top_networks:
             print("\tNetwork {}".format(top_net.network_ID))
             print("\tFitness: {}\n".format(top_net.fitness))
@@ -170,30 +174,38 @@ class Species:
         print("\t     Replication     ")
         print("\t=====================")
 
-        progeny = []
+        new_generation = []
         new_net_ID = 0
+        
+        ID = { "network": 0, 
+               "generation": self.current_generation_number+1, 
+               "species": self.species_ID }
+
         for top_network in self.top_networks:
-            parent_fitness = top_network.fitness
+            
             print("\n\tReplicating network {}...".format(top_network.network_ID))    
             print("\t-----------------")
-            print("\tFitness: {}".format(parent_fitness))
+            print("\tFitness: {}".format(top_network.fitness))
             
 
-            new_gen_num = self.current_generation_number+1
-            ID = {"network": new_net_ID, "generation": new_gen_num, "species": self.species_ID}
-            # Recopy parent, just to keep good run in history
-            new_network_1 = Network(ID, parent_fitness, top_network, mutation=False)
-            new_net_ID += 1
+            # Progeny 1 Replication -----------------------------------------------------------
+            progeny_1 = Network(ID, top_network, mutation=False)
+            ID["network"] += 1
+            # ---------------------------------------------------------------------------------
+
+            # Progeny 2 Replication -----------------------------------------------------------
+            progeny_2 = Network(ID, top_network, mutation=True)
+            ID["network"] += 1
+            # ---------------------------------------------------------------------------------
 
 
-            new_network_2 = Network(ID, parent_fitness, top_network, mutation=True)
-            new_net_ID += 1
+            # Append progeny to new generation
+            new_generation.append(progeny_1)
+            new_generation.append(progeny_2)
+            ID["generation"] += 1
 
-            progeny.append(new_network_1)
-            progeny.append(new_network_2)
 
-
-        self.generations.append(progeny)
+        self.generations.append(new_generation)
 
         self.current_generation_number += 1
 

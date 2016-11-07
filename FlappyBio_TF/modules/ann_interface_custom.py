@@ -10,7 +10,7 @@ import tensorflow as tf
 
 
 
-#sess = tf.InteractiveSession()
+
 
 
 """
@@ -61,23 +61,20 @@ TF math
 
 MUTATION_RATE = 0.5
 topology = [8, 1]
+random.seed(datetime.now())
 
 
 class Network:
 
-    def __init__(self, ID, parent_fitness=None, copy=False, mutation=False):
+    def __init__(self, ID, parent=None, mutation=False):
         
-        self.network_ID = ID["network"]
-        self.generation_ID = ID["generation"]
-        self.species_ID = ID["species"]
-
         self.max_neurons_per_hidden_layer = 20
-        self.parent_fitness = parent_fitness
+        
         self.topology = topology
         self.input_layer_size = topology[0]
         self.output_layer_size = topology[-1]
 
-        random.seed(datetime.now())
+        
         self.fitness = None
 
         try:
@@ -86,45 +83,46 @@ class Network:
         except:
             self.num_hidden_layers = 0
 
-
-       
         
-        self._init_(topology[0], topology[-1], copy, mutation)
+        self._init_(ID, topology[0], topology[-1], parent, mutation)
             
             
 
-    def _init_(self, input_size, output_size, copy=False, mutations=None, activation="relu"):
+    def _init_(self, ID, input_size, output_size, parent=None, mutations=None, activation="relu"):
         
         # Place Holders
         self.x = tf.placeholder(tf.float32, shape=[1, input_size])
 
         # Variables
-        if copy:
-            self.W = copy.W
-            self.b = copy.b
+        if parent:
+            self.__dict__.update(parent.__dict__)
+            self.parent_fitness = parent.fitness
 
-        elif mutations and not copy:
-            self.mutate()       
-        
-        elif not mutations:
+            if mutations:
+                self.mutate()
+                    
+        elif not parent and not mutations:
             self.W = tf.Variable(tf.random_normal((input_size, output_size)))
             self.b = tf.Variable(tf.zeros(output_size))
-            
+        
+        self.network_ID = ID["network"]
+        self.generation_ID = ID["generation"]
+        self.species_ID = ID["species"]
 
 
-        # Initialize output 
+        # Initialize output activation function
         if activation is "relu":
             self.y = tf.nn.relu(tf.matmul(self.x, self.W) + self.b)
         elif activation is "sigmoid":
             self.y = tf.sigmoid(tf.matmul(self.x, self.W) + self.b)
         
 
-        # Initialize to true for first flap
+        # Initialize to true for first flap to start the game
         self.output = True
  
-        # Initialize variables
-        init_op = tf.initialize_all_variables()
 
+        # Initialize TF variables above
+        init_op = tf.initialize_all_variables()
         self.sess = tf.Session()
         self.sess.run(init_op)
 
@@ -254,49 +252,6 @@ class Network:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
 
 
 
