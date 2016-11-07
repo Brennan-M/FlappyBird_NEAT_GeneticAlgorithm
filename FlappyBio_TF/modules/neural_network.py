@@ -180,7 +180,7 @@ class Network:
         # Declare new mutation variables
         delta_w = tf.constant(0.05)
 
-        mutate_index = np.random.randint(9)
+        mutate_index = np.random.randint(self.W.get_shape()[0]+1)
 
         for index in range(self.W.get_shape()[0]):
             w = self.W[index]
@@ -192,6 +192,22 @@ class Network:
                 print("w mutated: {}".format(self.sess.run(w)))
 
 
-
     def mutate_b(self):
+        # Declare new mutation variables
+        delta_b = tf.constant(0.05)
+
+        mutate_index = np.random.randint(self.b.get_shape()[0]+1)
+
+        for index in range(self.b.get_shape()[0]):
+            b = self.b[index]
+            tu = tf.add(delta_b, b)
+            if index == mutate_index:
+                print("b to mutate: {}".format(self.sess.run(b)))
+                new_b = b.assign(tu)
+                self.sess.run(new_b)
+                print("b mutated: {}".format(self.sess.run(b)))
+
+
+    def mutate_hidden_layer(self):
         pass
+
