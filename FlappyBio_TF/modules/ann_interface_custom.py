@@ -4,14 +4,7 @@ from sklearn import preprocessing
 from sklearn.preprocessing import normalize
 from datetime import datetime
 import tensorflow as tf
-
-
-
-
-
-
-
-
+from copy import deepcopy
 
 """
 Network Class
@@ -66,7 +59,7 @@ random.seed(datetime.now())
 
 class Network:
 
-    def __init__(self, ID, parent=None, mutation=False):
+    def __init__(self, ID, genes=None, mutation=False):
         
         self.max_neurons_per_hidden_layer = 20
         
@@ -84,24 +77,27 @@ class Network:
             self.num_hidden_layers = 0
 
         
-        self._init_(ID, topology[0], topology[-1], parent, mutation)
+        self._init_(ID, topology[0], topology[-1], genes, mutation)
             
             
 
-    def _init_(self, ID, input_size, output_size, parent=None, mutations=None, activation="relu"):
+    def _init_(self, ID, input_size, output_size, inhereted_genes, mutations, activation="relu"):
         
         # Place Holders
         self.x = tf.placeholder(tf.float32, shape=[1, input_size])
 
         # Variables
-        if parent:
-            self.__dict__.update(parent.__dict__)
-            self.parent_fitness = parent.fitness
+        if inhereted_genes:
+            parent_W = inhereted_genes[1]
+            parent_b = inhereted_genes[2]
 
-            if mutations:
-                self.mutate()
+            self.W = tf.Variable(tf.random_normal((input_size, output_size)))
+            self.b = tf.Variable(tf.zeros(output_size))
+
+            copy_W = self.W.assign(parent_W)
+            copy_b = self.b.assign(parent_b)
                     
-        elif not parent and not mutations:
+        else:
             self.W = tf.Variable(tf.random_normal((input_size, output_size)))
             self.b = tf.Variable(tf.zeros(output_size))
         
@@ -119,15 +115,23 @@ class Network:
 
         # Initialize to true for first flap to start the game
         self.output = True
- 
+
 
         # Initialize TF variables above
         init_op = tf.initialize_all_variables()
         self.sess = tf.Session()
         self.sess.run(init_op)
 
+        if mutations:
+            self.mutate()
+
+
+    def close_tensor_flow_session(self):
+        self.sess.close()
       
         
+    def copy(self):
+        return (deepcopy(topology), self.W, self.b)
 
 
     def norm_input(self, X, norm_type='other'):
@@ -185,9 +189,10 @@ class Network:
             elif mutate_index == 1:
                 print("Mutate b!")
                 mutations[mutate_index]
-        
-        
 
+        
+        
+        
 
     def mutate_W(self):
         # Declare new mutation variables
@@ -223,7 +228,6 @@ class Network:
 
     def mutate_hidden_layer(self):
         pass
-
 
 
     def update(self, player, Upipes, Lpipes):

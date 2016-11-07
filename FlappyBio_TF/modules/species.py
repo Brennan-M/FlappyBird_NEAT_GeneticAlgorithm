@@ -115,7 +115,7 @@ class Species:
             print("\ty: {}".format(results['y']))
             print("\tFitness: {}".format(fitness_score))
 
-        
+            
 
     def selection(self):
         """
@@ -164,6 +164,12 @@ class Species:
             print("\tFitness: {}\n".format(top_net.fitness))
         
 
+    def copy_parent(self, parent, ID, mutation=None):
+        genes = parent.copy()
+        print(genes)
+        new_progeny = Network(ID, genes, mutation)
+
+        return new_progeny
 
     def replication(self):
         """
@@ -187,14 +193,15 @@ class Species:
             print("\t-----------------")
             print("\tFitness: {}".format(top_network.fitness))
             
-
+                   
+    
             # Progeny 1 Replication -----------------------------------------------------------
-            progeny_1 = Network(ID, top_network, mutation=False)
+            progeny_1 = self.copy_parent(top_network, ID) 
             ID["network"] += 1
             # ---------------------------------------------------------------------------------
 
             # Progeny 2 Replication -----------------------------------------------------------
-            progeny_2 = Network(ID, top_network, mutation=True)
+            progeny_2 = self.copy_parent(top_network, ID, mutation=True) 
             ID["network"] += 1
             # ---------------------------------------------------------------------------------
 
@@ -203,6 +210,8 @@ class Species:
             new_generation.append(progeny_1)
             new_generation.append(progeny_2)
             ID["generation"] += 1
+
+            top_network.close_tensor_flow_session()
 
 
         self.generations.append(new_generation)

@@ -55,7 +55,7 @@ if __name__ == "__main__":
     generations = 10000
     
     
-    organisms = 6  # number of neural nets per generation - NOTE: Must be even number
+    organisms = 8  # number of neural nets per generation - NOTE: Must be even number
     main(num_species, generations, organisms)
 
 
