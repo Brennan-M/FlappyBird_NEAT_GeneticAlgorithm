@@ -15,7 +15,7 @@ Neural Network Interface Class
 
 class Interface:
 
-    def __init__(self, net_ID, gen_ID, species_ID, copy=False, mutation=None):
+    def __init__(self, net_ID, gen_ID, species_ID, parent_fitness=None, copy=False, mutation=None):
         self.network_ID = net_ID
         self.generation_ID = gen_ID
         self.species_ID = species_ID
@@ -28,12 +28,12 @@ class Interface:
         self.output_layer_size = 1
         self.topology = [self.input_layer_size, self.output_layer_size]
 
-        self._init_network_(copy, mutation)
+        self._init_network_(parent_fitness, copy, mutation)
 
 
-    def _init_network_(self, copy, mutation):
+    def _init_network_(self, parent_fitness, copy, mutation):
         
-        self.network = ann.Network(self.topology, copy, mutation)
+        self.network = ann.Network(self.topology, parent_fitness, copy, mutation)
         
 
     def set_fitness(self, fitness):
@@ -42,6 +42,7 @@ class Interface:
 
 
     def mutate(self):
+
         return self.network.mutate()
 
 

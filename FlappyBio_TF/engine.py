@@ -25,9 +25,9 @@ The process is:
 """
 
 
-def main(num_species, generations, initial_organisms, organisms):
+def main(num_species, generations, organisms):
     
-    init_species = Species(initial_organisms)
+    init_species = Species(organisms)
     
     species = [init_species]
 
@@ -44,7 +44,7 @@ def main(num_species, generations, initial_organisms, organisms):
             current_species.selection()
             current_species.replication()
 
-        new_species = Species(initial_organisms, species_ID=species_index)
+        new_species = Species(organisms, species_ID=species_index)
         species.append(new_species)
         print("\n\n")
 
@@ -54,6 +54,8 @@ if __name__ == "__main__":
     num_species = 100
     generations = 10000
     
-    initial_organisms = 10
-    organisms = 10  # number of neural nets per generation - NOTE: Must be even number
-    main(num_species, generations, initial_organisms, organisms)
+    
+    organisms = 6  # number of neural nets per generation - NOTE: Must be even number
+    main(num_species, generations, organisms)
+
+

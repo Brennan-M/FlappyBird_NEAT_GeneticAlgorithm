@@ -1,5 +1,5 @@
 import numpy as np
-import math
+import math, random
 from sklearn import preprocessing
 from sklearn.preprocessing import normalize
 import tensorflow as tf
@@ -44,14 +44,21 @@ How To Standardize Data for Neural Networks
 ------------------------------------------------------------------------------------------------
 TF Slicing based on variable
     http://stackoverflow.com/questions/34002591/tensorflow-slicing-based-on-variable
+
+------------------------------------------------------------------------------------------------
+TF math
+    https://www.tensorflow.org/versions/r0.11/api_docs/python/math_ops.html
 """
+
+MUTATION_RATE = 0.5
+
 
 class Network:
 
-    def __init__(self, topology, copy=False, mutation=False):
+    def __init__(self, topology, parent_fitness=None, copy=False, mutation=False):
         
         self.max_neurons_per_hidden_layer = 20
-
+        self.parent_fitness = parent_fitness
         self.topology = topology
         self.input_layer_size = topology[0]
         self.output_layer_size = topology[-1]
@@ -80,13 +87,11 @@ class Network:
         if not mutations:
             self.W = tf.Variable(tf.random_normal((input_size, output_size)))
             self.b = tf.Variable(tf.zeros(output_size))
-        else:
-            if mutations[0] is 'W':
-                self.W = tf.Variable(tf.random_normal((input_size, output_size)))
-                self.b = mutations[1]
-            elif mutations[0] is 'b':
-                self.W = mutations[1]
-                self.b = tf.Variable(tf.zeros(output_size))
+
+        elif mutations:
+            self.W = mutations[0]    
+            self.b = mutations[1]        
+        
 
 
         # Initialize output 
@@ -139,12 +144,12 @@ class Network:
         with tf.Session() as sess:
             Z = self.sess.run(self.y, feed_dict=feed_dict)
 
-        print("Raw output: {}".format(Z))
+        #print("Raw output: {}".format(Z))
         if Z >= 0.5:
             self.output = True
         else:
             self.output = False
-        print("Flap: {}\n".format(self.output))
+        #print("Flap: {}\n".format(self.output))
      
 
     
@@ -154,88 +159,39 @@ class Network:
 
 
     def mutate(self):
-        #network_elements = [self.W, self.b]
+        network_elements = [self.W, self.b]
+        mutations = [self.mutate_W(), self.mutate_b()]
+        mutate = random.uniform(0, 1)
 
-        rand_index = np.random.randint(2)
+        if mutate <= MUTATION_RATE:
+            mutate_index = np.random.randint(2)
+            if mutate_index == 0:
+                print("Mutate W!")
+                mutations[mutate_index]
 
-        if rand_index == 0:
-            mutations = ["W", self.b]
-        elif rand_index == 1:
-            mutations = ["b", self.W]
+            elif mutate_index == 1:
+                print("Mutate b!")
+                mutations[mutate_index]
         
-        return mutations
+        return network_elements
 
-    # def mutate(self):
-        
-        # network_elements = [self.W1, self.W2, self.b1, self.b2, self.hidden_layer_size]
-        # elements_size = len(network_elements)
 
-        # mutation_index = np.random.randint(elements_size)
-        
-        # mutation_element = network_elements[mutation_index]
+    def mutate_W(self):
+        # Declare new mutation variables
+        delta_w = tf.constant(1.0)
 
-        # # Weight matrix mutation
-        # if mutation_index == 0 or mutation_index == 1:
-        #     print("\n\tMutation to Weight Matrix.\n")
-        #     self.mutate_W(mutation_element)
+        mutate_index = np.random.randint(9)
 
-        # elif mutation_index == 2 or mutation_index == 3:
-        #     print("\n\tMutation to Bias.\n")
-        #     self.mutate_b(mutation_element)
-
-        # elif mutation_index == 4:
-        #     print("\n\tMutation to Hidden Layer.\n")
-        #     self.mutate_hidden_layer(self.W1, self.W2, mutation_element)
-        
-        # return network_elements
+        for index in range(self.W.get_shape()[0]):
+            w = self.W[index]
+            tu = tf.add(delta_w, w)
+            if index == mutate_index:
+                print("w to mutate: {}".format(self.sess.run(w)))
+                new_w = w.assign(tu)
+                self.sess.run(new_w)
+                print("w mutated: {}".format(self.sess.run(w)))
 
 
 
-    # def mutate_W(self, element):
-    #     num_rows = len(element)
-    #     num_cols = len(element[0])
-        
-    #     mutation_row = np.random.randint(num_rows)
-    #     mutation_col = np.random.randint(num_cols)
-    #     #print("Mutation at {},{}: {}".format(mutation_row, mutation_col, element[mutation_row][mutation_col]))
-        
-    #     mutation = np.random.randn(1) * 50
-    #     #print("Mutation: {}".format(mutation))
-    #     element[mutation_row][mutation_col] += mutation
-    #     #print("Post Mutation at {},{}: {}".format(mutation_row, mutation_col, element[mutation_row][mutation_col]))
-        
-
-    # def mutate_b(self, element):
-    #     mutation = np.random.randn(1) * 50
-    #     element += mutation
-        
-
-    # def mutate_hidden_layer(self, W1, W2, element):
-
-    #     if np.random.randn(1) >= 0:
-    #         node_change = 1
-    #     else:
-    #         if element > 1:
-    #             node_change = -1
-
-    #     element += node_change
-
-        
-    #     # Update W1
-    #     W1_num_cols = len(W1[0])
-    #     new_W1 = np.random.randn(element, W1_num_cols)
-    #     for row_i, row in enumerate(new_W1[:element]):
-    #         for col_i, ele in enumerate(row):
-    #             new_W1[row_i][col_i] = ele
-
-    #     W1 = new_W1
-
-
-    #     # Update W2
-    #     new_W2 = np.random.randn(1, element) * 50
-    #     for index, col in enumerate(new_W2[0][:element]):
-    #         new_W2[0][index] = col
-            
-    #     W2 = new_W2
-        
-                
+    def mutate_b(self):
+        pass
