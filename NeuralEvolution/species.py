@@ -84,11 +84,11 @@ class Species(object):
 
             # A couple different fitness functions to mess with
 
-            fitness_score = (results['distance']) - (distance_from_pipes * 2)
+            # fitness_score = (results['distance']) - (distance_from_pipes * 2)
 
-            # fitness_score = ((results['score'] * 5000) 
-            #                  + (results['distance'])
-            #                  - (distance_from_pipes * 3))
+            fitness_score = ((results['score'] * 5000) 
+                             + (results['distance'])
+                             - (distance_from_pipes * 3))
 
             network.set_fitness(fitness_score)
             print 'Network', network_num, 'scored', fitness_score
