@@ -31,6 +31,19 @@ class NEAT(object):
             self.pretty_print_s_id(s_id)
             s.evolve()
 
+            self.crossover(s_id)
+
+    def crossover(self, s_id):
+        # Find the best performing networks across generations of this species
+        species = self.species[s_id]
+        for gen in xrange(self.num_generations_per_spec):
+            sorted_network_ids = sorted(species.generations[gen], key=lambda k: species.generations[gen][k].fitness, reverse=True)
+            top_survivor = sorted_network_ids[0]
+            fitness = species.generations[gen][top_survivor].fitness
+            genes = species.generations[gen][top_survivor].get_genes()
+
+            print("top survivor: {0}\tfitness: {1}\tgenes: {2}".format(top_survivor, fitness, genes))
+
 
     def pretty_print_s_id(self, s_id):
         print "\n"
