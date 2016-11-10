@@ -248,14 +248,27 @@ def mainGame(movementInfo, neural_network):
 
 
         # Predict Input to Mr. Flappy
-        neural_input = [0 for i in range(6)]
+        neural_input = [0 for i in range(10)]
         neural_input[0] = float(playerx)
         neural_input[1] = float(playery)
         neural_input[2] = float(upperPipes[0]['y'])
         neural_input[3] = float(upperPipes[0]['x'])
-        neural_input[4] = float(upperPipes[1]['x'])
-        neural_input[5] = float(lowerPipes[0]['y'])
-
+        neural_input[4] = float(upperPipes[1]['y'])
+        neural_input[5] = float(upperPipes[1]['x'])
+        neural_input[6] = float(lowerPipes[0]['y'])
+        neural_input[7] = float(lowerPipes[0]['x'])
+        neural_input[8] = float(lowerPipes[1]['y'])
+        neural_input[9] = float(lowerPipes[1]['x'])
+        # if (len(upperPipes) == 3):
+        #     neural_input[10] = float(upperPipes[2]['y'])
+        #     neural_input[11] = float(upperPipes[2]['x'])
+        #     neural_input[12] = float(lowerPipes[2]['y'])
+        #     neural_input[13] = float(lowerPipes[2]['x'])
+        # else: 
+        #     neural_input[10] = 0
+        #     neural_input[11] = 0
+        #     neural_input[12] = 0
+        #     neural_input[13] = 0
         # If neural_network predicts 1, jump
         if neural_network.predict(neural_input) == 1:
             if playery > -2 * IMAGES['player'][0].get_height():

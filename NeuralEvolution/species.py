@@ -89,9 +89,9 @@ class Species(object):
             elif (results['y'] > results['upperPipes'][0]['y']):
                 distance_from_pipes = abs(results['y'] - results['lowerPipes'][0]['y'])
 
-            fitness_score = ((results['score'] * 10000)
+            fitness_score = ((results['score'] * 2000)
                             + results['distance']
-                            - (distance_from_pipes*10))
+                            - (distance_from_pipes * 3))
 
             network.set_fitness(fitness_score)
             print 'Network', network_num, 'scored', fitness_score
