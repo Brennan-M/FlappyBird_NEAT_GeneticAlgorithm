@@ -22,12 +22,16 @@ class Network(object):
 
         # Neural Net structure information
         self.topology = topology
-        self.structure_type = self.topology[0]
-        self.num_input_neurons = self.topology[1]
-        self.num_output_neurons = self.topology[2]
-        if (self.structure_type != PERCEPTRON):
-            self.num_hidden_neurons = self.topology[3]
-            self.num_hidden_layers = self.topology[4] 
+        self.num_input_neurons = self.topology[0]
+        self.num_output_neurons = self.topology[1]
+        self.num_hidden_neurons = self.topology[2]
+        self.num_hidden_layers = self.topology[3] 
+        if (self.num_hidden_layers == 0):
+            self.structure_type = PERCEPTRON
+        elif (self.num_hidden_layers == 1):
+            self.structure_type = NET
+        else:
+            self.structure_type = DEEP_NET
 
         # Neural Net values
         self.fitness = 0
@@ -107,11 +111,17 @@ class Network(object):
         elif (self.structure_type == NET):
             A = [self.activation(self.inputW[:, i].T.dot(X) + self.b[0])
                      for i in range(self.num_hidden_neurons)]
-            return self.activation(self.outputW.T.dot(A)+self.b[1])
+            return self.activation(self.outputW.T.dot(A) + self.b[1])
 
         elif (self.structure_type == DEEP_NET):
-            # TODO: Code feed forward for multiple hidden layers
-            pass
+            A = [self.activation(self.inputW[:, i].T.dot(X) + self.b[0])
+                     for i in range(self.num_hidden_neurons)]
+
+            for i in range(self.num_hidden_layers-1):
+                A = [self.activation(self.W[i, :, j].T.dot(A) + self.b[i+1])
+                        for j in range(self.num_hidden_neurons)]
+
+            return self.activation(self.outputW.T.dot(A) + self.b[-1])
 
 
     def set_fitness(self, fitness):
@@ -125,33 +135,34 @@ class Network(object):
         mutation_actions[action_index]()
 
         
-    def mutate_W(self):
-        # Declare new mutation sign and magnitude
-        weight_mutation_direction = np.random.choice(np.asarray([-1, 1]))
-        weight_mutation_magnitude = np.random.uniform(0, 1)
+    def mutate_W(self, mutation_count=2):
 
-        if (self.structure_type == PERCEPTRON):
-            # In the future, we will generate 2 random indices, since we will choose a layer as well
-            weight_index_to_mutate = np.random.randint(self.W.shape[0])
+        for i in range(mutation_count):
+            # Declare new mutation sign and magnitude
+            weight_mutation_direction = np.random.choice(np.asarray([-1, 1]))
+            weight_mutation_magnitude = np.random.uniform(0, 1)
 
-            # Apply the mutation
-            self.W[weight_index_to_mutate] += weight_mutation_direction * weight_mutation_magnitude
+            if (self.structure_type == PERCEPTRON):
+                # In the future, we will generate 2 random indices, since we will choose a layer as well
+                weight_index_to_mutate = np.random.randint(self.W.shape[0])
 
-        elif (self.structure_type == NET):
-            layers = [self.inputW, self.outputW]
-            layer_index_to_mutate = np.random.randint(2)
+                # Apply the mutation
+                self.W[weight_index_to_mutate] += weight_mutation_direction * weight_mutation_magnitude
 
-            weight_col_to_mutate = np.random.randint(layers[layer_index_to_mutate].shape[0])
-            weight_row_to_mutate = np.random.randint(layers[layer_index_to_mutate].shape[1])
+            else:
+                if (self.structure_type == NET):
+                    layers = [self.inputW, self.outputW]
+                elif (self.structure_type == DEEP_NET):
+                    layers = [self.inputW, self.W, self.outputW]
 
-            layers[layer_index_to_mutate][weight_col_to_mutate, weight_row_to_mutate] += \
-                                          weight_mutation_direction * weight_mutation_magnitude
+                layer_index_to_mutate = np.random.randint(len(layers))
 
-        elif (self.structure_type == DEEP_NET):
-            # TODO: Code mutation for multiple hidden layers
-            pass
+                weight_col_to_mutate = np.random.randint(layers[layer_index_to_mutate].shape[0])
+                weight_row_to_mutate = np.random.randint(layers[layer_index_to_mutate].shape[1])
 
-
+                layers[layer_index_to_mutate][weight_col_to_mutate, weight_row_to_mutate] += \
+                                              weight_mutation_direction * weight_mutation_magnitude
+                
 
     def mutate_b(self):
         # Declare new mutation sign and mangnitude

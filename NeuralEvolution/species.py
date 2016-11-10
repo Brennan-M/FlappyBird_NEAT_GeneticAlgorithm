@@ -46,28 +46,20 @@ class Species(object):
 
                 parent_network = self.generations[generation_number-1][r_id]
 
-                # Cloned progeny
-                network_info_clone = {"network": network_number, 
-                                      "generation": generation_number,
-                                      "species": self.species_id}
+                for i in range(2):
 
-                cloned_neural_network = Network(self.organism_topology,
-                                                network_info_clone,
-                                                parent_network.get_genes())
-                networks[network_number] = cloned_neural_network
-                network_number += 1
+                    # Mutated progenies
+                    network_info_mutation = {"network": network_number, 
+                                             "generation": generation_number,
+                                             "species": self.species_id}
 
-                # Mutated progeny
-                network_info_mutation = {"network": network_number, 
-                                         "generation": generation_number,
-                                         "species": self.species_id}
+                    mutated_neural_network = Network(self.organism_topology,
+                                                     network_info_mutation,
+                                                     parent_network.get_genes())
+                    mutated_neural_network.mutate()
+                    networks[network_number] = mutated_neural_network
 
-                mutated_neural_network = Network(self.organism_topology,
-                                                 network_info_mutation,
-                                                 parent_network.get_genes())
-                mutated_neural_network.mutate()
-                networks[network_number] = mutated_neural_network
-                network_number += 1
+                    network_number += 1
 
 
         self.generations[generation_number] = networks
@@ -89,9 +81,14 @@ class Species(object):
             elif (results['y'] > results['upperPipes'][0]['y']):
                 distance_from_pipes = abs(results['y'] - results['lowerPipes'][0]['y'])
 
-            fitness_score = ((results['score'] * 2000)
-                            + results['distance']
-                            - (distance_from_pipes * 3))
+
+            # A couple different fitness functions to mess with
+
+            fitness_score = (results['distance']) - (distance_from_pipes * 2)
+
+            # fitness_score = ((results['score'] * 5000) 
+            #                  + (results['distance'])
+            #                  - (distance_from_pipes * 3))
 
             network.set_fitness(fitness_score)
             print 'Network', network_num, 'scored', fitness_score

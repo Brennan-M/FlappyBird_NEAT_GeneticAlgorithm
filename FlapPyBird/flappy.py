@@ -6,6 +6,9 @@ import pygame
 from pygame.locals import *
 
 
+RANDOM_PIPES = True
+
+
 FPS = 60 # Seems I cannot speed it up past this.
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
@@ -119,7 +122,10 @@ def main(neural_network):
         )
 
         # select random pipe sprites
-        random.seed()
+        if (RANDOM_PIPES):
+            random.seed()
+        else:
+            random.seed(5)
         pipeindex = random.randint(0, len(PIPES_LIST) - 1)
         IMAGES['pipe'] = (
             pygame.transform.rotate(
@@ -377,7 +383,10 @@ def playerShm(playerShm):
 
 def getRandomPipe():
     """returns a randomly generated pipe"""
-    random.seed()
+    if (RANDOM_PIPES):
+        random.seed()
+    else:
+        random.seed(5)
     # y of gap between upper and lower pipe
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
