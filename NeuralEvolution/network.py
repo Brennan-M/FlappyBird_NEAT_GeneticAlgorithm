@@ -3,6 +3,13 @@ import math
 from sklearn import preprocessing
 
 
+def mate(parent_A, parent_B):
+    # TODO: More sophisticated genetic engineering. 
+    # Currently, chooses the fittest partent's genes
+    if parent_A.fitness > parent_B.fitness:
+        return parent_A.get_genes()
+    else:
+        return parent_B.get_genes()
 
 class Network(object):
 

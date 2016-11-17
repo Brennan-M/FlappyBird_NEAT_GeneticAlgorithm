@@ -9,43 +9,73 @@ os.chdir(os.getcwd() + '/FlapPyBird/')
 class Species(object):
 
 
-    def __init__(self, topology, num_generations, num_networks_per_gen, s_id):
+    def __init__(self, topology, num_generations, num_networks_per_gen, s_id, inherited_genes = None):
 
         self.species_id = s_id
         self.num_generations = num_generations
         self.num_networks_per_gen = num_networks_per_gen
         self.organism_topology = topology
         self.generations = {}
-
+        self.inherited_genes = inherited_genes
 
     def evolve(self):
         replicated_network_ids = None
         for gen in xrange(self.num_generations):
-            self.create_generation(gen, replicated_network_ids)
+            self.create_generation(gen, replicated_network_ids, self.inherited_genes)
             self.generate_fitness(gen)
+
+            # Only seed the first generation with inherited genes
             replicated_network_ids = self.select_survivors(gen)
+            self.inherited_genes = None
 
-
-    def create_generation(self, generation_number, replicate_ids):
+    def create_generation(self, generation_number, replicate_ids, inherited_genes = None):
         networks = {}
 
-        # Create a non-inherited generation
-        if (not replicate_ids):
-            for network_number in xrange(self.num_networks_per_gen):
-                network_info = {"network": network_number, 
-                                "generation": generation_number,
-                                "species": self.species_id}
+        if (not inherited_genes):
+            # Create a non-inherited generation
+            if (not replicate_ids):
+                for network_number in xrange(self.num_networks_per_gen):
+                    network_info = {"network": network_number, 
+                                    "generation": generation_number,
+                                    "species": self.species_id}
 
-                new_neural_network = Network(self.organism_topology, network_info)
-                networks[network_number] = new_neural_network
+                    new_neural_network = Network(self.organism_topology, network_info)
+                    networks[network_number] = new_neural_network
 
-        # Spawn a generation consisting of progeny from fittest predecessors
-        elif (replicate_ids): 
+            # Spawn a generation consisting of progeny from fittest predecessors
+            elif (replicate_ids): 
+                network_number = 0
+                for r_id in replicate_ids:
+
+                    parent_network = self.generations[generation_number-1][r_id]
+
+                    # Cloned progeny
+                    network_info_clone = {"network": network_number, 
+                                          "generation": generation_number,
+                                          "species": self.species_id}
+
+                    cloned_neural_network = Network(self.organism_topology,
+                                                    network_info_clone,
+                                                    parent_network.get_genes())
+                    networks[network_number] = cloned_neural_network
+                    network_number += 1
+
+                    # Mutated progeny
+                    network_info_mutation = {"network": network_number, 
+                                             "generation": generation_number,
+                                             "species": self.species_id}
+
+                    mutated_neural_network = Network(self.organism_topology,
+                                                     network_info_mutation,
+                                                     parent_network.get_genes())
+                    mutated_neural_network.mutate()
+                    networks[network_number] = mutated_neural_network
+                    network_number += 1
+
+        elif inherited_genes:
+            #print("----- INHERITED GENES: {0}".format(inherited_genes))
             network_number = 0
-            for r_id in replicate_ids:
-
-                parent_network = self.generations[generation_number-1][r_id]
-
+            for i in xrange(self.num_networks_per_gen/2):
                 # Cloned progeny
                 network_info_clone = {"network": network_number, 
                                       "generation": generation_number,
@@ -53,7 +83,7 @@ class Species(object):
 
                 cloned_neural_network = Network(self.organism_topology,
                                                 network_info_clone,
-                                                parent_network.get_genes())
+                                                inherited_genes)
                 networks[network_number] = cloned_neural_network
                 network_number += 1
 
@@ -64,11 +94,10 @@ class Species(object):
 
                 mutated_neural_network = Network(self.organism_topology,
                                                  network_info_mutation,
-                                                 parent_network.get_genes())
+                                                 inherited_genes)
                 mutated_neural_network.mutate()
                 networks[network_number] = mutated_neural_network
                 network_number += 1
-
 
         self.generations[generation_number] = networks
 
@@ -94,7 +123,7 @@ class Species(object):
                             - (distance_from_pipes*10))
 
             network.set_fitness(fitness_score)
-            print 'Network', network_num, 'scored', fitness_score
+            print 'Network', network_num, 'scored', fitness_score#, "with genes", network.get_genes()
             generation_score += fitness_score
 
         print "\nGeneration Score:", generation_score
