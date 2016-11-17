@@ -6,9 +6,6 @@ import pygame
 from pygame.locals import *
 
 
-RANDOM_PIPES = True
-
-
 FPS = 60 # Seems I cannot speed it up past this.
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
@@ -105,6 +102,7 @@ def main(neural_network):
     with open('assets/max_score.txt', 'r') as infile:
         max_score = infile.readline()
 
+
     # sounds
     if 'win' in sys.platform:
         soundExt = '.wav'
@@ -131,10 +129,7 @@ def main(neural_network):
         )
 
         # select random pipe sprites
-        if (RANDOM_PIPES):
-            random.seed()
-        else:
-            random.seed(5)
+        random.seed()
         pipeindex = random.randint(0, len(PIPES_LIST) - 1)
         IMAGES['pipe'] = (
             pygame.transform.rotate(
@@ -157,6 +152,7 @@ def main(neural_network):
 
         movementInfo = showWelcomeAnimation()
         crashInfo = mainGame(movementInfo, neural_network, max_score)
+        #showGameOverScreen(crashInfo)
 
         return crashInfo
 
@@ -262,27 +258,14 @@ def mainGame(movementInfo, neural_network, max_score):
 
 
         # Predict Input to Mr. Flappy
-        neural_input = [0 for i in range(10)]
+        neural_input = [0 for i in range(6)]
         neural_input[0] = float(playerx)
         neural_input[1] = float(playery)
         neural_input[2] = float(upperPipes[0]['y'])
         neural_input[3] = float(upperPipes[0]['x'])
-        neural_input[4] = float(upperPipes[1]['y'])
-        neural_input[5] = float(upperPipes[1]['x'])
-        neural_input[6] = float(lowerPipes[0]['y'])
-        neural_input[7] = float(lowerPipes[0]['x'])
-        neural_input[8] = float(lowerPipes[1]['y'])
-        neural_input[9] = float(lowerPipes[1]['x'])
-        # if (len(upperPipes) == 3):
-        #     neural_input[10] = float(upperPipes[2]['y'])
-        #     neural_input[11] = float(upperPipes[2]['x'])
-        #     neural_input[12] = float(lowerPipes[2]['y'])
-        #     neural_input[13] = float(lowerPipes[2]['x'])
-        # else: 
-        #     neural_input[10] = 0
-        #     neural_input[11] = 0
-        #     neural_input[12] = 0
-        #     neural_input[13] = 0
+        neural_input[4] = float(upperPipes[1]['x'])
+        neural_input[5] = float(lowerPipes[0]['y'])
+
         # If neural_network predicts 1, jump
         if neural_network.predict(neural_input) == 1:
             if playery > -2 * IMAGES['player'][0].get_height():
@@ -374,7 +357,6 @@ def mainGame(movementInfo, neural_network, max_score):
         showSpeciesID(neural_network.species_number, text="species")
 
 
-
         SCREEN.blit(IMAGES['player'][playerIndex], (playerx, playery))
 
         pygame.display.update()
@@ -394,10 +376,7 @@ def playerShm(playerShm):
 
 def getRandomPipe():
     """returns a randomly generated pipe"""
-    if (RANDOM_PIPES):
-        random.seed()
-    else:
-        random.seed(5)
+    random.seed()
     # y of gap between upper and lower pipe
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
@@ -410,24 +389,6 @@ def getRandomPipe():
     ]
 
 
-def showMaxScore(max_score, text="max_score"):
-    """displays score in center of screen"""
-    scoreDigits = [int(x) for x in list(str(max_score))]
-    totalWidth = 0 # total width of all numbers to be printed
-
-    x_position=0.999
-    y_position=0.04
-
-    for digit in scoreDigits:
-        totalWidth += IMAGES['numbers'][digit].get_width()
-
-    Xoffset = (SCREENWIDTH - totalWidth) / x_position
-
-    for digit in scoreDigits:
-        SCREEN.blit(IMAGES['numbers'][digit], (40, SCREENHEIGHT * y_position + 10))
-        Xoffset += IMAGES['numbers'][digit].get_width()
-
-    SCREEN.blit(IMAGES[text], (0, 0))
 
 
 def showNetwork(ID, x_position=4, y_position=0.9, text=None):
@@ -449,6 +410,26 @@ def showNetwork(ID, x_position=4, y_position=0.9, text=None):
         SCREEN.blit(IMAGES[text], (-8, 395))
     elif text == "generation":
         SCREEN.blit(IMAGES[text], (190, 395))
+
+
+def showMaxScore(max_score, text="max_score"):
+    """displays score in center of screen"""
+    scoreDigits = [int(x) for x in list(str(max_score))]
+    totalWidth = 0 # total width of all numbers to be printed
+
+    x_position=0.999
+    y_position=0.04
+
+    for digit in scoreDigits:
+        totalWidth += IMAGES['numbers'][digit].get_width()
+
+    Xoffset = (SCREENWIDTH - totalWidth) / x_position
+
+    for digit in scoreDigits:
+        SCREEN.blit(IMAGES['numbers'][digit], (40, SCREENHEIGHT * y_position + 10))
+        Xoffset += IMAGES['numbers'][digit].get_width()
+
+    SCREEN.blit(IMAGES[text], (0, 0))
 
 
 def showSpeciesID(species, text=None):
@@ -484,13 +465,13 @@ def showMetric(stat, text=None):
     Yoffset = SCREENHEIGHT - 40
 
     if text == "energy":
-        for digit in scoreDigits:
+    	for digit in scoreDigits:
             SCREEN.blit(IMAGES['numbers'][digit], (Xoffset - 70, Yoffset))
             Xoffset += IMAGES['numbers'][digit].get_width()
         SCREEN.blit(IMAGES[text], (35, 440))
 
     elif text == "distance":
-        for digit in scoreDigits:
+    	for digit in scoreDigits:
             SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + 100, Yoffset))
             Xoffset += IMAGES['numbers'][digit].get_width()
         SCREEN.blit(IMAGES[text], (205, 440))
@@ -512,34 +493,28 @@ def showScore(score):
 
     SCREEN.blit(IMAGES['scores'], (105, 15))
 
+
 def showTopology(topology, text='topology'):
     """displays score in center of screen"""
+    # scoreDigits = [int(x) for x in list(str(topology))]
+    scoreDigits = topology
+    totalWidth = 0 # total width of all numbers to be printed
+
+    for digit in scoreDigits:
+        totalWidth += IMAGES['numbers'][digit].get_width()
+
+    Xoffset = (SCREENWIDTH - totalWidth) / 2
+
+    for digit in scoreDigits:
+        SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.72))
+        Xoffset += IMAGES['numbers'][digit].get_width() + 15
+
     
-    text_font = pygame.font.Font(None, 30)
-
-    # Input
-    text = text_font.render("I-" + str(topology[0]), 1, (255, 255, 255))
-    SCREEN.blit(text, (140, 320))
-
-    # Output
-    text = text_font.render("O-" + str(topology[1]), 1, (255, 255, 255))
-    SCREEN.blit(text, (140, 342)) 
-   
-    # -h
-    text = text_font.render("H-" + str(topology[2]), 1, (255, 255, 255))
-    SCREEN.blit(text, (140, 364)) 
-
-    # -l
-    text = text_font.render("L-" + str(topology[3]), 1, (255, 255, 255))
-    SCREEN.blit(text, (140, 386))
-
-
+    SCREEN.blit(IMAGES[text], (100, 395))
+    
         
-    
 
-    
-    SCREEN.blit(IMAGES['topology'], (100, 395))
-    
+
 
 def checkCrash(player, upperPipes, lowerPipes):
     """returns True if player collders with base or pipes."""
