@@ -99,11 +99,11 @@ def main(neural_network):
     # Topology
     IMAGES['topology'] = pygame.image.load('assets/sprites/topology.png').convert_alpha()
 
-    # Max Score
-    IMAGES['max_score'] = pygame.image.load('assets/sprites/max_score.png').convert_alpha()
-    # Import maxscore
-    with open('assets/max_score.txt', 'r') as infile:
-        max_score = infile.readline()
+    # # Max Score
+    # IMAGES['max_score'] = pygame.image.load('assets/sprites/max_score.png').convert_alpha()
+    # # Import maxscore
+    # with open('assets/max_score.txt', 'r') as infile:
+    #     max_score = infile.readline()
 
     # sounds
     if 'win' in sys.platform:
@@ -156,7 +156,7 @@ def main(neural_network):
         )
 
         movementInfo = showWelcomeAnimation()
-        crashInfo = mainGame(movementInfo, neural_network, max_score)
+        crashInfo = mainGame(movementInfo, neural_network)
 
         return crashInfo
 
@@ -215,7 +215,7 @@ def showWelcomeAnimation():
         FPSCLOCK.tick(FPS)
 
 
-def mainGame(movementInfo, neural_network, max_score):
+def mainGame(movementInfo, neural_network):
 
     score = playerIndex = playerDistance = loopIter = 0
     playerIndexGen = movementInfo['playerIndexGen']
@@ -359,7 +359,7 @@ def mainGame(movementInfo, neural_network, max_score):
         SCREEN.blit(IMAGES['base'], (basex, BASEY))
         # print score so player overlaps the score
         showScore(score)
-        showMaxScore(max_score)
+        #showMaxScore(max_score)
 
         # print energy
         showMetric(playerEnergyUsed, text="energy")
@@ -518,20 +518,20 @@ def showTopology(topology, text='topology'):
     text_font = pygame.font.Font(None, 30)
 
     # Input
-    text = text_font.render("I-" + str(topology[0]), 1, (255, 255, 255))
-    SCREEN.blit(text, (140, 320))
+    text = text_font.render("I:" + str(topology[0]), 1, (0, 0, 0))
+    SCREEN.blit(text, (140, 430))
 
     # Output
-    text = text_font.render("O-" + str(topology[1]), 1, (255, 255, 255))
-    SCREEN.blit(text, (140, 342)) 
+    text = text_font.render("O:" + str(topology[1]), 1, (0, 0, 0))
+    SCREEN.blit(text, (140, 450)) 
    
     # -h
-    text = text_font.render("H-" + str(topology[2]), 1, (255, 255, 255))
-    SCREEN.blit(text, (140, 364)) 
+    text = text_font.render("H:" + str(topology[2]), 1, (0, 0, 0))
+    SCREEN.blit(text, (140, 470)) 
 
     # -l
-    text = text_font.render("L-" + str(topology[3]), 1, (255, 255, 255))
-    SCREEN.blit(text, (140, 386))
+    text = text_font.render("L:" + str(topology[3]), 1, (0, 0, 0))
+    SCREEN.blit(text, (140, 490))
 
 
         
