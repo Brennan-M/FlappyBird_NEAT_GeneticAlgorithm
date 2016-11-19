@@ -135,7 +135,7 @@ class Network(object):
         mutation_actions[action_index]()
 
         
-    def mutate_W(self, mutation_count=2):
+    def mutate_W(self, mutation_count=3):
 
         for i in range(mutation_count):
             # Declare new mutation sign and magnitude

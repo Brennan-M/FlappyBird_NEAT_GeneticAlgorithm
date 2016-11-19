@@ -16,9 +16,12 @@ class Species(object):
         self.num_networks_per_gen = num_networks_per_gen
         self.organism_topology = topology
         self.generations = {}
+        self.max_fitness_score = None
 
 
     def evolve(self):
+        self.max_fitness_score = self.read_fitness_from_file()
+
         replicated_network_ids = None
         for gen in xrange(self.num_generations):
             self.create_generation(gen, replicated_network_ids)
@@ -81,16 +84,22 @@ class Species(object):
             elif (results['y'] > results['upperPipes'][0]['y']):
                 distance_from_pipes = abs(results['y'] - results['lowerPipes'][0]['y'])
 
-
             # A couple different fitness functions to mess with
+            fitness_score = (results['score']*1000) + \
+                            results['distance'] - \
+                            distance_from_pipes - \
+                            (results['energy'] * 2)
 
-            # fitness_score = (results['distance']) - (distance_from_pipes * 2)
-
-            fitness_score = ((results['score'] * 5000) 
-                             + (results['distance'])
-                             - (distance_from_pipes * 3))
+            # fitness_score = ((results['score'] * 5000) 
+            #                  + (results['distance'])
+            #                  - (distance_from_pipes * 3))
 
             network.set_fitness(fitness_score)
+
+            if fitness_score > self.max_fitness_score:
+                self.max_fitness_score = fitness_score
+                self.write_net_to_file(network)
+
             print 'Network', network_num, 'scored', fitness_score
             generation_score += fitness_score
 
@@ -115,4 +124,63 @@ class Species(object):
         print "---  Generation:", gen_id, " ---"
         print "-----------------------"
         print "\n"
+
+
+    # Utility functions for saving networks with file I/O #
+    # --------------------------------------------------- #
+
+
+    def generate_filename(self):
+        return "../BestNetworks/" + str(self.organism_topology) + ".best_network.flpynet"
+
+
+    def read_fitness_from_file(self):
+        try:
+            f = open(self.generate_filename(), 'r')
+            fitness_score = f.readline()
+            return float(fitness_score)
+        except:
+            return float("-inf")
+
+
+    def write_net_to_file(self, network):
+        f = open(self.generate_filename(), 'w')
+
+        f.write(str(network.fitness) + "\n")
+        f.write(str(network.structure_type) + "\n")
+
+        f.write(str(network.species_number) + 
+                " " + str(network.generation_number) +
+                " " + str(network.network_number) + 
+                "\n")
+
+        for t in self.organism_topology:
+            f.write(str(t) + " ")
+        f.write("\n")
+
+        if network.structure_type == 0:
+            weights, bias = network.get_genes()
+
+            for w in weights:
+                f.write(str(w) + " ")
+            f.write("\n")
+            f.write(str(bias[0][0]) + "\n")
+
+        elif network.structure_type == 1:
+            input_w, output_w, bias = network.get_genes()
+
+            for seq in input_w:
+                for w in seq:
+                    f.write(str(w) + " ")
+            f.write("\n")
+            for seq in output_w:
+                for w in seq:
+                    f.write(str(w) + " ")
+            f.write("\n")
+            for b in bias:
+                f.write(str(b[0]) + " ")
+            f.write("\n")
+
+        elif network.structure_type == 2:
+            pass
 
