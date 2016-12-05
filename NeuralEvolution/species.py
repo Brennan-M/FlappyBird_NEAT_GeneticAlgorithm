@@ -74,31 +74,36 @@ class Species(object):
         
         self.pretty_print_gen_id(generation_number)
 
-        for network_num, network in self.generations[generation_number].items():
-            # Run the game with each network in the current generation
-            results = flpy.main(network)
+        neural_networks = self.generations[generation_number].values()
+        # Run the game with each network in the current generation
+        app = flpy.FlappyBirdApp(neural_networks)
+        app.play()
+        birds = app.birds
 
+        for network_num, bird in enumerate(birds):
+            print bird
+            crashInfo = bird.crashInfo
             distance_from_pipes = 0
-            if (results['y'] < results['upperPipes'][0]['y']):
-                distance_from_pipes = abs(results['y'] - results['upperPipes'][0]['y'])
-            elif (results['y'] > results['upperPipes'][0]['y']):
-                distance_from_pipes = abs(results['y'] - results['lowerPipes'][0]['y'])
+            if (bird.y < crashInfo['upperPipes'][0]['y']):
+                distance_from_pipes = abs(bird.y - crashInfo['upperPipes'][0]['y'])
+            elif (bird.y > crashInfo['upperPipes'][0]['y']):
+                distance_from_pipes = abs(bird.y - crashInfo['lowerPipes'][0]['y'])
 
             # A couple different fitness functions to mess with
-            fitness_score = (results['score']*1000) + \
-                            results['distance'] - \
+            fitness_score = (crashInfo['score']*1000) + \
+                            crashInfo['distance'] - \
                             distance_from_pipes - \
-                            (results['energy'] * 2)
+                            (crashInfo['energy'] * 2)
 
             # fitness_score = ((results['score'] * 5000) 
             #                  + (results['distance'])
             #                  - (distance_from_pipes * 3))
 
-            network.set_fitness(fitness_score)
+            neural_networks[network_num].set_fitness(fitness_score)
 
             if fitness_score > self.max_fitness_score:
                 self.max_fitness_score = fitness_score
-                self.write_net_to_file(network)
+                self.write_net_to_file(neural_networks[network_num])
 
             print 'Network', network_num, 'scored', fitness_score
             generation_score += fitness_score
