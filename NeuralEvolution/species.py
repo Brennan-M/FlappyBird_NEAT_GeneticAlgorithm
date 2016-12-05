@@ -20,8 +20,6 @@ class Species(object):
 
 
     def evolve(self):
-        self.max_fitness_score = self.read_fitness_from_file()
-
         replicated_network_ids = None
         for gen in xrange(self.num_generations):
             self.create_generation(gen, replicated_network_ids)
