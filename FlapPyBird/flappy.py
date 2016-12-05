@@ -6,7 +6,7 @@ import pygame
 from pygame.locals import *
 
 
-RANDOM_PIPES = True
+RANDOM_PIPES = False
 
 
 FPS = 60 # Seems I cannot speed it up past this.

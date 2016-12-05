@@ -1,5 +1,6 @@
 import numpy as np
 from NeuralEvolution.network import Network
+import NeuralEvolution.config as config
 import FlapPyBird.flappy as flpy
 import os
 os.chdir(os.getcwd() + '/FlapPyBird/')
@@ -9,69 +10,51 @@ os.chdir(os.getcwd() + '/FlapPyBird/')
 class Species(object):
 
 
-    def __init__(self, topology, num_generations, num_networks_per_gen, s_id):
-
+    def __init__(self, s_id, species_population, genome):
         self.species_id = s_id
-        self.num_generations = num_generations
-        self.num_networks_per_gen = num_networks_per_gen
-        self.organism_topology = topology
-        self.generations = {}
+        self.species_population = species_population
+        self.generation_number = 0
+
+        genome.set_species(self.species_id)
+        genome.set_generation(self.generation_number)
+        self.genomes = {i:genome.clone() for i in xrange(self.species_population)}
+        for i in xrange(1, self.species_population):
+            self.genomes[i].reinitialize()
+
+        # Information used for culling and population control
+        self.active = True
+        self.no_improvement_generations_allowed = config.STAGNATED_SPECIES_THRESHOLD
+        self.times_stagnated = 0
+        self.max_fitness_achieved = 0
+        self.generation_with_max_fitness = 0
+
+
+    def run_generation(self):
+        if self.active:
+            species_fitness = self.generate_fitness()
+            self.culling(species_fitness)
+            return species_fitness if self.active else 0
+        else:
+            return 0
 
 
     def evolve(self):
-        replicated_network_ids = None
-        for gen in xrange(self.num_generations):
-            self.create_generation(gen, replicated_network_ids)
-            self.generate_fitness(gen)
-            replicated_network_ids = self.select_survivors(gen)
-
-
-    def create_generation(self, generation_number, replicate_ids):
-        networks = {}
-
-        # Create a non-inherited generation
-        if (not replicate_ids):
-            for network_number in xrange(self.num_networks_per_gen):
-                network_info = {"network": network_number, 
-                                "generation": generation_number,
-                                "species": self.species_id}
-
-                new_neural_network = Network(self.organism_topology, network_info)
-                networks[network_number] = new_neural_network
-
-        # Spawn a generation consisting of progeny from fittest predecessors
-        elif (replicate_ids): 
-            network_number = 0
-            for r_id in replicate_ids:
-
-                parent_network = self.generations[generation_number-1][r_id]
-
-                for i in range(2):
-
-                    # Mutated progenies
-                    network_info_mutation = {"network": network_number, 
-                                             "generation": generation_number,
-                                             "species": self.species_id}
-
-                    mutated_neural_network = Network(self.organism_topology,
-                                                     network_info_mutation,
-                                                     parent_network.get_genes())
-                    mutated_neural_network.mutate()
-                    networks[network_number] = mutated_neural_network
-
-                    network_number += 1
-
-
-        self.generations[generation_number] = networks
+        if self.active:
+            survivor_ids = self.select_survivors()
+            self.create_next_generation(survivor_ids)
+            self.generation_number += 1
+            for genome in self.genomes.values():
+                genome.set_generation(self.generation_number)
 
 
     # This function holds the interface and interaction with FlapPyBird
-    def generate_fitness(self, generation_number):
-        generation_score = 0
+    def generate_fitness(self):
+        species_score = 0
         
-        self.pretty_print_gen_id(generation_number)
+        self.pretty_print_s_id(self.species_id)
+        self.pretty_print_gen_id(self.generation_number)
 
-        for network_num, network in self.generations[generation_number].items():
+        for network_num, network in self.genomes.items():
             # Run the game with each network in the current generation
             results = flpy.main(network)
 
@@ -92,21 +75,82 @@ class Species(object):
 
             network.set_fitness(fitness_score)
             print 'Network', network_num, 'scored', fitness_score
-            generation_score += fitness_score
+            species_score += fitness_score
 
-        print "\nGeneration Score:", generation_score
+        print "\nSpecies Score:", species_score
+
+        return species_score
+
+
+    def create_next_generation(self, replicate_ids):
+        genomes = {}
+        # Champion of each species is copied to next generation unchanged
+        genomes[0] = self.genomes[replicate_ids[0]]
+        genome_id = 1
+
+        # Spawn a generation consisting of progeny from fittest predecessors
+        while (genome_id < self.species_population):
+
+            # Choose an old genome at random from the survivors
+            random_genome = self.genomes[np.random.choice(replicate_ids)]
+
+            # Clone
+            if np.random.uniform() > config.CROSSOVER_CHANCE:
+                genomes[genome_id] = random_genome
+
+            # Crossover
+            else:
+                # genome_mate = self.genomes[np.random.choice(replicate_ids)]
+                # genomes[genome_id] = random_genome.crossover(genome_mate)
+                genomes[genome_id] = random_genome
+
+            # Mutate the newly added genome
+            # genomes[genome_id].mutate()
+
+            genome_id += 1
+
+        self.genomes = genomes
         
 
-    def select_survivors(self, generation_number):
-        sorted_network_ids = sorted(self.generations[generation_number], 
-                                    key=lambda k: self.generations[generation_number][k].fitness,
+    def select_survivors(self):
+        sorted_network_ids = sorted(self.genomes, 
+                                    key=lambda k: self.genomes[k].fitness,
                                     reverse=True)
 
-        alive_network_ids = sorted_network_ids[:self.num_networks_per_gen/2]
-        dead_network_ids = sorted_network_ids[self.num_networks_per_gen/2:]
+        alive_network_ids = sorted_network_ids[:int(round(float(self.species_population)/2.0))]
+        dead_network_ids = sorted_network_ids[int(round(float(self.species_population)/2.0)):]
 
         print '\nBest Networks:', alive_network_ids
+        print 'Worst Networks:', dead_network_ids
         return alive_network_ids
+
+
+    def culling(self, new_fitness):
+        if new_fitness > self.max_fitness_achieved:
+            self.max_fitness_achieved = new_fitness
+            self.generation_with_max_fitness = self.generation_number
+        
+        # Cull due to stagnation 
+        if (self.generation_number - self.generation_with_max_fitness) > self.no_improvement_generations_allowed:
+            self.times_stagnated += 1
+            # Could do a type of repopulation here, and allow for 3 stagnations
+            self.active = False
+
+        # Cull due to weak species
+        if (self.species_population < config.WEAK_SPECIES_THRESHOLD):
+            self.active = False
+
+
+    def set_population(self, population):
+        self.species_population = population
+
+
+    def pretty_print_s_id(self, s_id):
+        print "\n"
+        print "===================="
+        print "===  Species:", s_id, " ==="
+        print "===================="
+        print "\n"
 
 
     def pretty_print_gen_id(self, gen_id):
