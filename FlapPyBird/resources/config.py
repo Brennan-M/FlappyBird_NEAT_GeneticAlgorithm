@@ -1,6 +1,6 @@
 import os
 
-RANDOM_PIPES = True
+RANDOM_PIPES = False
 SOUND_ON = False
 
 FPS = 60 # Seems I cannot speed it up past this.

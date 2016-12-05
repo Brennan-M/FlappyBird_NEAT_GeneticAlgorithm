@@ -88,20 +88,17 @@ class Species(object):
                 distance_from_pipes = abs(bird.y - crashInfo['lowerPipes'][0]['y'])
 
             # A couple different fitness functions to mess with
-            fitness_score = (crashInfo['score']*1000) + \
-                            crashInfo['distance'] - \
-                            distance_from_pipes - \
-                            (crashInfo['energy'] * 2)
+            # fitness_score = (crashInfo['score']*1000) + \
+            #                crashInfo['distance'] - \
+            #                distance_from_pipes - \
+            #                (crashInfo['energy'] * 2)
 
-            # fitness_score = ((results['score'] * 5000) 
-            #                  + (results['distance'])
-            #                  - (distance_from_pipes * 3))
+            fitness_score = ((crashInfo['score'] * 5000) 
+                              + (crashInfo['distance'])
+                              - (distance_from_pipes * 3))
 
             neural_networks[network_num].set_fitness(fitness_score)
 
-            if fitness_score > self.max_fitness_score:
-                self.max_fitness_score = fitness_score
-                self.write_net_to_file(neural_networks[network_num])
 
             print 'Network', network_num, 'scored', fitness_score
             generation_score += fitness_score

@@ -65,7 +65,6 @@ class FlappyBirdApp(object):
         # =========----==========================================================
         for index, bird in enumerate(self.birds):
             if bird.check_crash(self.pipes, self.base.basex, self.score):
-                print("CRASH: {0} bird".format(index))
                 self.crash_info.append(bird.crashInfo)
                 del self.birds[index]
                 if len(self.birds) == 0:
