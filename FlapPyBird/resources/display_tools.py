@@ -66,6 +66,6 @@ def displayStat(SCREEN, stat, text=None):
 
       elif text == "generation":
           for digit in scoreDigits:
-              SCREEN.blit(IMAGES['numbers'][digit], (Xoffset+130, 368))
+              SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + 100, 368))
               Xoffset += IMAGES['numbers'][digit].get_width()
           SCREEN.blit(IMAGES[text], (190, 395))
