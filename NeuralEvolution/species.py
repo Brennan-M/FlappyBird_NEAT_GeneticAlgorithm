@@ -54,26 +54,34 @@ class Species(object):
         self.pretty_print_s_id(self.species_id)
         self.pretty_print_gen_id(self.generation_number)
 
-        for network_num, network in self.genomes.items():
-            # Run the game with each network in the current generation
-            results = flpy.main(network)
+        neural_networks = self.genomes.values()
+
+        # Run the game with each organism in the current generation
+        app = flpy.FlappyBirdApp(neural_networks)
+        app.play()
+        results = app.crash_info
+
+
+        for network_num, crash_info in enumerate(results):
 
             distance_from_pipes = 0
-            if (results['y'] < results['upperPipes'][0]['y']):
-                distance_from_pipes = abs(results['y'] - results['upperPipes'][0]['y'])
-            elif (results['y'] > results['upperPipes'][0]['y']):
-                distance_from_pipes = abs(results['y'] - results['lowerPipes'][0]['y'])
-
+            if (crash_info['y'] < crash_info['upperPipes'][0]['y']):
+                distance_from_pipes = abs(crash_info['y'] - crash_info['upperPipes'][0]['y'])
+            elif (crash_info['y'] > crash_info['upperPipes'][0]['y']):
+                distance_from_pipes = abs(crash_info['y'] - crash_info['lowerPipes'][0]['y'])
 
             # A couple different fitness functions to mess with
+            # fitness_score = (crash_info['score']*1000) + \
+            #                crash_info['distance'] - \
+            #                distance_from_pipes - \
+            #                (crash_info['energy'] * 2)
 
-            # fitness_score = (results['distance']) - (distance_from_pipes * 2)
+            fitness_score = ((crash_info['score'] * 5000) 
+                              + (crash_info['distance'])
+                              - (distance_from_pipes * 3))
 
-            fitness_score = ((results['score'] * 5000) 
-                             + (results['distance'])
-                             - (distance_from_pipes * 3))
+            neural_networks[network_num].set_fitness(fitness_score)
 
-            network.set_fitness(fitness_score)
             print 'Network', network_num, 'scored', fitness_score
             species_score += fitness_score
 
@@ -134,10 +142,12 @@ class Species(object):
         if (self.generation_number - self.generation_with_max_fitness) > self.no_improvement_generations_allowed:
             self.times_stagnated += 1
             # Could do a type of repopulation here, and allow for 3 stagnations
+            print "Species", self.species_id, "culled."
             self.active = False
 
         # Cull due to weak species
         if (self.species_population < config.WEAK_SPECIES_THRESHOLD):
+            print "Species", self.species_id, "culled."
             self.active = False
 
 

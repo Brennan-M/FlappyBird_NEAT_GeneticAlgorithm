@@ -39,6 +39,10 @@ class NEAT(object):
             
             self.population_fitness = float(sum(fitness_scores))
 
+            if (self.population_fitness == 0):
+                print "\n\nAll species have gone extinct!\n\n"
+                exit()
+
             # Evolve (create the next generation) for each species
             for s_id, s in self.species.items():
                 weighted_fitness = fitness_scores[s_id]/self.population_fitness
