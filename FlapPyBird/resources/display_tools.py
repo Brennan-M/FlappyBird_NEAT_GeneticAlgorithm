@@ -31,7 +31,8 @@ def displayStat(SCREEN, stat, text=None):
           """displays score in center of screen"""
 
           for digit in scoreDigits:
-              SCREEN.blit(IMAGES['numbers'][digit], (130, 45))
+              SCREEN.blit(IMAGES['numbers'][digit], (Xoffset, 45))
+              Xoffset += IMAGES['numbers'][digit].get_width()
 
           SCREEN.blit(IMAGES[text], (105, 15))
 
