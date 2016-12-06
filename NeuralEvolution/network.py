@@ -15,7 +15,6 @@ class Network(object):
         # Neural Net meta data
         self.species_number = None
         self.generation_number = None
-        self.network_number = 0
         self.fitness = 0
 
         # Neural Net structure information

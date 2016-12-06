@@ -25,7 +25,7 @@ class FlappyBirdApp(object):
 
         """  CREATE PLAYER """
         self.movementInfo = tools.load_and_initialize()
-        self.birds = [Bird(self.movementInfo, neural_network) for neural_network in neural_networks]
+        self.birds = [Bird(self.movementInfo, neural_network, i) for i, neural_network in enumerate(neural_networks)]
         """ CREATE PIPES """
         self.pipes = Pipes(Pipe(), Pipe())
 
