@@ -1,10 +1,15 @@
 from FlapPyBird.resources.config import *
-import random
+import random, copy
 
 class Pipe(object):
 
-    def __init__(self):
-        random.seed() if (RANDOM_PIPES) else random.seed(5)
+    def __init__(self, seed = None):
+        if seed:
+            random.seed(seed)
+        elif RANDOM_PIPES:
+            random.seed() 
+        else: 
+            random.seed(5)
 
         # y of gap between upper and lower pipe
         gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
@@ -31,7 +36,20 @@ class Pipe(object):
 
 
 class Pipes(object):
-    def __init__(self, pipe1, pipe2):
+    def __init__(self, pattern = None):
+        self.pattern = copy.copy(pattern)
+        seed1 = None; seed2 = None
+
+        if self.pattern:
+            seed1 = self.pattern.pop(0)
+            self.pattern.append(seed1)
+
+            seed2 = self.pattern.pop(0)
+            self.pattern.append(seed2)
+
+        pipe1 = Pipe(seed1)
+        pipe2 = Pipe(seed2)
+
         self.movement_velocity = -4
         self.upper1_x = pipe1.x
         self.upper2_x = pipe2.x
@@ -54,18 +72,26 @@ class Pipes(object):
     def update(self):
         # add new pipe when first pipe is about to touch left of screen
         if 0 < self.upper[0]['x'] < 5:
-            self.add(Pipe())
+            seed1 = None
+            if self.pattern:            
+                seed1 = self.pattern.pop(0)
+                self.pattern.append(seed1)
+            
+            pipe1 = Pipe(seed1)
+            self.add(pipe1)
 
         # remove first pipe if its out of the screen
         if self.upper[0]['x'] < -IMAGES['pipe'][0].get_width():
             self.remove()
+            if self.pattern:
+                seed1 = self.pattern.pop(0)
+                self.pattern.append(seed1)
 
 
     def add(self, new_pipe):
         """ ADD NEW PIPE """
-        newPipe = Pipe()
-        self.upper.append(newPipe.get_upper())
-        self.lower.append(newPipe.get_lower())
+        self.upper.append(new_pipe.get_upper())
+        self.lower.append(new_pipe.get_lower())
 
     def remove(self):
         """ REMOVE FINISHED PIPE """

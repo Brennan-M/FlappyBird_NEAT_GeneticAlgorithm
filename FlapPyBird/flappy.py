@@ -27,7 +27,10 @@ class FlappyBirdApp(object):
         self.movementInfo = tools.load_and_initialize()
         self.birds = [Bird(self.movementInfo, neural_network, i) for i, neural_network in enumerate(neural_networks)]
         """ CREATE PIPES """
-        self.pipes = Pipes(Pipe(), Pipe())
+        if REPEATING_PIPES:
+            self.pipes = Pipes(PIPE_PATTERN)
+        else:
+            self.pipes = Pipes()
 
         """ CREATE BASE """
         self.base = Base(self.movementInfo['basex'])
