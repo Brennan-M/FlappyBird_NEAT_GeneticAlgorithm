@@ -80,8 +80,8 @@ class Species(object):
 
             species_score += fitness_score
 
-        for n_id, net in self.genomes.items():
-            print 'Network', n_id, 'scored', net.fitness
+        # for n_id, net in self.genomes.items():
+        #     print 'Network', n_id, 'scored', net.fitness
 
         print "\nSpecies Score:", species_score
 
@@ -128,8 +128,8 @@ class Species(object):
         alive_network_ids = sorted_network_ids[:int(round(float(self.species_population)/2.0))]
         dead_network_ids = sorted_network_ids[int(round(float(self.species_population)/2.0)):]
 
-        print '\nBest Networks:', alive_network_ids
-        print 'Worst Networks:', dead_network_ids
+        # print '\nBest Networks:', alive_network_ids
+        # print 'Worst Networks:', dead_network_ids
         return alive_network_ids
 
 
@@ -139,17 +139,32 @@ class Species(object):
             self.avg_max_fitness_achieved = new_avg_fitness
             self.generation_with_max_fitness = self.generation_number
         
-        # Cull due to stagnation 
+        # Cull/Repopulate due to stagnation 
         if (self.generation_number - self.generation_with_max_fitness) > self.no_improvement_generations_allowed:
             self.times_stagnated += 1
-            # Could do a type of repopulation here, and allow for 3 stagnations
-            print "Species", self.species_id, "culled."
-            self.active = False
+            if self.times_stagnated > config.STAGNATIONS_ALLOWED:
+                print "Species", self.species_id, "culled."
+                self.active = False
+            else:
+                print "Species", self.species_id, "stagnated. Repopulating..."
+                self.generation_with_max_fitness = self.generation_number
+                self.avg_max_fitness_achieved = 0
+                champion_genome = self.get_species_champion()
+                self.genomes = {i:champion_genome.clone() for i in xrange(self.species_population)}
+
 
         # Cull due to weak species
         if (self.species_population < config.WEAK_SPECIES_THRESHOLD):
             print "Species", self.species_id, "culled."
             self.active = False
+
+
+    def get_species_champion(self):
+        champion = self.genomes[0]
+        for n_id, network in self.genomes.items():
+            if network.fitness > champion.fitness:
+                champion = network
+        return champion
 
 
     def set_population(self, population):
@@ -165,7 +180,6 @@ class Species(object):
 
 
     def pretty_print_gen_id(self, gen_id):
-        print "\n"
         print "-----------------------"
         print "---  Generation:", gen_id, " ---"
         print "-----------------------"
