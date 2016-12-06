@@ -1,5 +1,6 @@
 from NeuralEvolution.neuron import Neuron
 from NeuralEvolution.gene import Gene
+import NeuralEvolution.config as config
 from copy import deepcopy
 import numpy as np
 import math
@@ -93,7 +94,7 @@ class Network(object):
 
         self.reset_neurons()
 
-        return True if output_value >= 0.5 else False
+        return True if output_value >= config.ACTIVATION_THRESHOLD else False
 
 
     def reset_neurons(self):
@@ -110,48 +111,13 @@ class Network(object):
             gene.randomize_weight()
 
 
-    # def mutate(self):
-    #     pass
-    #     # mutation_actions = [self.mutate_W, self.mutate_b]
-    #     # action_index = np.random.randint(2)
-        
-    #     # mutation_actions[action_index]()
+    def mutate(self):
+        for gene in self.genes.values():
+            gene.mutate_weight()
+ 
+        # Now structural mutations
+            # Adding edge
+            # Adding node
+            # Enabling previously disabled node
 
-        
-    # def mutate_W(self, mutation_count=2):
-
-    #     for i in range(mutation_count):
-    #         # Declare new mutation sign and magnitude
-    #         weight_mutation_direction = np.random.choice(np.asarray([-1, 1]))
-    #         weight_mutation_magnitude = np.random.uniform(0, 1)
-
-    #         if (self.structure_type == PERCEPTRON):
-    #             # In the future, we will generate 2 random indices, since we will choose a layer as well
-    #             weight_index_to_mutate = np.random.randint(self.W.shape[0])
-
-    #             # Apply the mutation
-    #             self.W[weight_index_to_mutate] += weight_mutation_direction * weight_mutation_magnitude
-
-    #         else:
-    #             if (self.structure_type == NET):
-    #                 layers = [self.inputW, self.outputW]
-    #             elif (self.structure_type == DEEP_NET):
-    #                 layers = [self.inputW, self.W, self.outputW]
-
-    #             layer_index_to_mutate = np.random.randint(len(layers))
-
-    #             weight_col_to_mutate = np.random.randint(layers[layer_index_to_mutate].shape[0])
-    #             weight_row_to_mutate = np.random.randint(layers[layer_index_to_mutate].shape[1])
-
-    #             layers[layer_index_to_mutate][weight_col_to_mutate, weight_row_to_mutate] += \
-    #                                           weight_mutation_direction * weight_mutation_magnitude
-                
-
-    # def mutate_b(self):
-    #     # Declare new mutation sign and mangnitude
-    #     bias_index_to_mutate = np.random.randint(self.b.shape[0])
-    #     bias_mutation_direction = np.random.choice(np.asarray([-1, 1]))
-    #     bias_mutation_magnitude = np.random.uniform(0, 1)
-
-    #     self.b[bias_index_to_mutate] += bias_mutation_direction * bias_mutation_magnitude
-
+    

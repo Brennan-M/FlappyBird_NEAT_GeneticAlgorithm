@@ -25,7 +25,7 @@ class Species(object):
         self.active = True
         self.no_improvement_generations_allowed = config.STAGNATED_SPECIES_THRESHOLD
         self.times_stagnated = 0
-        self.max_fitness_achieved = 0
+        self.avg_max_fitness_achieved = 0
         self.generation_with_max_fitness = 0
 
 
@@ -49,7 +49,6 @@ class Species(object):
 
     # This function holds the interface and interaction with FlapPyBird
     def generate_fitness(self):
-        print "CALLED"
         species_score = 0
         
         self.pretty_print_s_id(self.species_id)
@@ -132,8 +131,9 @@ class Species(object):
 
 
     def culling(self, new_fitness):
-        if new_fitness > self.max_fitness_achieved:
-            self.max_fitness_achieved = new_fitness
+        new_avg_fitness = (new_fitness / self.species_population)
+        if new_avg_fitness > self.avg_max_fitness_achieved:
+            self.avg_max_fitness_achieved = new_avg_fitness
             self.generation_with_max_fitness = self.generation_number
         
         # Cull due to stagnation 
