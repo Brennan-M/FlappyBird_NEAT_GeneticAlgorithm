@@ -99,7 +99,7 @@ class Network(object):
 
     def reset_neurons(self):
         for n_id, neuron in self.neurons.items():
-            neuron.reset()
+            neuron.reset_neuron()
 
 
     def clone(self):

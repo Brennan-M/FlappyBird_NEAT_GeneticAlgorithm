@@ -29,7 +29,7 @@ class Neuron(object):
         return False
 
 
-    def reset(self):
+    def reset_neuron(self):
         self.received_inputs = 0
         self.input = 0.0
         self.sent_output = False
