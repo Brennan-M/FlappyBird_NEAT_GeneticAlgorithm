@@ -144,8 +144,8 @@ class FlappyBirdApp(object):
         for bird in self.birds:
             # disp_tools.displayStat(SCREEN, bird.energy_used, text="energy")
             # disp_tools.displayStat(SCREEN, neural_network.topology, text="topology")
-            # disp_tools.displayStat(SCREEN, neural_network.species_number, text="species")
-            # disp_tools.displayStat(SCREEN, neural_network.generation_number, text="generation")
+            disp_tools.displayStat(SCREEN, bird.neural_network.species_number, text="species")
+            disp_tools.displayStat(SCREEN, bird.neural_network.generation_number, text="generation")
             SCREEN.blit(IMAGES['player'][bird.index], (bird.x, bird.y))
         # =========----==========================================================
 
