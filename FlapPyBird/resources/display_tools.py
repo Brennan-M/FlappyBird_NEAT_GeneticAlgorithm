@@ -69,3 +69,9 @@ def displayStat(SCREEN, stat, text=None):
               SCREEN.blit(IMAGES['numbers'][digit], (Xoffset + 100, 368))
               Xoffset += IMAGES['numbers'][digit].get_width()
           SCREEN.blit(IMAGES[text], (190, 395))
+
+      elif text == "organism":
+          for digit in scoreDigits:
+              SCREEN.blit(IMAGES['numbers'][digit], (Xoffset - 100, 368))
+              Xoffset += IMAGES['numbers'][digit].get_width()
+          SCREEN.blit(IMAGES[text], (0, 395))

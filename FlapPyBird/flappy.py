@@ -22,6 +22,7 @@ class FlappyBirdApp(object):
 
         self.score = 0
         self.crash_info = []
+        self.num_organisms = len(neural_networks)
 
         """  CREATE PLAYER """
         self.movementInfo = tools.load_and_initialize()
@@ -144,6 +145,7 @@ class FlappyBirdApp(object):
         # =========----==========================================================
         disp_tools.displayStat(SCREEN, self.birds[0].distance*-1, text="distance")
         disp_tools.displayStat(SCREEN, self.score, text="scores")
+        disp_tools.displayStat(SCREEN, self.num_organisms, text="organism")
         for bird in self.birds:
             # disp_tools.displayStat(SCREEN, bird.energy_used, text="energy")
             # disp_tools.displayStat(SCREEN, neural_network.topology, text="topology")
