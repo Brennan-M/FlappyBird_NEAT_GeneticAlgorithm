@@ -33,17 +33,17 @@ class Network(object):
         i = 0
         self.input_neurons = []
         while i < self.num_input_neurons:
-            self.neurons[self.current_neuron_id] = Neuron(self.current_neuron_id, "Input")
-            self.input_neurons.append(self.neurons[self.current_neuron_id])
-            self.current_neuron_id += 1
+            new_neuron_id = self.get_next_neuron_id()
+            self.neurons[new_neuron_id] = Neuron(new_neuron_id, "Input")
+            self.input_neurons.append(self.neurons[new_neuron_id])
             i += 1
 
         i = 0
         self.output_neurons = []
         while i < self.num_output_neurons:
-            self.neurons[self.current_neuron_id] = Neuron(self.current_neuron_id, "Output")
-            self.output_neurons.append(self.neurons[self.current_neuron_id])
-            self.current_neuron_id += 1
+            new_neuron_id = self.get_next_neuron_id()
+            self.neurons[new_neuron_id] = Neuron(new_neuron_id, "Output")
+            self.output_neurons.append(self.neurons[new_neuron_id])
             i += 1
 
         # Create Genes
@@ -63,6 +63,12 @@ class Network(object):
 
     def set_species(self, s_id):
         self.species_number = s_id
+
+
+    def get_next_neuron_id(self):
+        current_id = self.current_neuron_id
+        self.current_neuron_id += 1
+        return current_id
 
 
     def predict(self, X):
@@ -114,10 +120,15 @@ class Network(object):
     def mutate(self):
         for gene in self.genes.values():
             gene.mutate_weight()
- 
-        # Now structural mutations
-            # Adding edge
-            # Adding node
-            # Enabling previously disabled node
+            #gene.mutate_possible_enable()
+        
+        if np.random.uniform() < config.ADD_GENE_MUTATION:
+            pass
 
-    
+        if np.random.uniform() < config.ADD_NODE_MUTATION:
+            pass
+            # print "ADDING NEW NODE MUTATION"
+            # new_neuron_id = self.get_next_neuron_id()
+            # self.neurons[new_neuron_id] = Neuron(new_neuron_id)
+            # exit()
+

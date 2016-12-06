@@ -149,8 +149,12 @@ class Species(object):
                 print "Species", self.species_id, "stagnated. Repopulating..."
                 self.generation_with_max_fitness = self.generation_number
                 self.avg_max_fitness_achieved = 0
-                champion_genome = self.get_species_champion()
-                self.genomes = {i:champion_genome.clone() for i in xrange(self.species_population)}
+                # Get a random genome (just to maintain the structure)
+                genome = self.genomes[0]
+                self.genomes = {i:genome.clone() for i in xrange(self.species_population)}
+                # Reinitialize, otherwise if we just clone the champion, we may end up with same local optima
+                for genome in self.genomes.values():
+                    genome.reinitialize()
 
 
         # Cull due to weak species
@@ -159,12 +163,12 @@ class Species(object):
             self.active = False
 
 
-    def get_species_champion(self):
-        champion = self.genomes[0]
-        for n_id, network in self.genomes.items():
-            if network.fitness > champion.fitness:
-                champion = network
-        return champion
+    # def get_species_champion(self):
+    #     champion = self.genomes[0]
+    #     for n_id, network in self.genomes.items():
+    #         if network.fitness > champion.fitness:
+    #             champion = network
+    #     return champion
 
 
     def set_population(self, population):
