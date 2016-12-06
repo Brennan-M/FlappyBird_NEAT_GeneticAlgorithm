@@ -2,12 +2,13 @@ from FlapPyBird.resources.config import *
 import pygame, random
 
 class Bird(object):
-    def __init__(self, player_index_gen, neural_network):
+    def __init__(self, player_index_gen, neural_network, n_id):
         # select random player sprites
         self.playerIndexGen = player_index_gen['playerIndexGen']
         self.x, self.y = int(SCREENWIDTH * 0.2), player_index_gen['playery']
 
         self.neural_network = neural_network
+        self.neural_id = n_id
 
         self.index = 0
         self.distance = 0
@@ -78,6 +79,7 @@ class Bird(object):
                 'distance': self.distance*-1,
                 'energy': self.energy_used,
                 'network': self.neural_network,
+                'network_id': self.neural_id,
                 'y': self.y,
                 'x': self.x
             }

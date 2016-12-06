@@ -24,8 +24,16 @@ class Gene(object):
         self.weight = weight
 
 
+    def mutate_weight(self):
+        if np.random.uniform() < config.WEIGHT_MUTATION_RATE:
+            if np.random.uniform() < config.UNIFORM_WEIGHT_MUTATION_RATE:
+                self.weight += np.random.uniform(-0.1, 0.1)
+            else:
+                self.randomize_weight()
+
+
     def randomize_weight(self):
-        self.weight = np.random.uniform(-1, 1)
+        self.weight = np.random.uniform(-2, 2)
 
 
     def copy(self):

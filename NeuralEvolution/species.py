@@ -25,7 +25,7 @@ class Species(object):
         self.active = True
         self.no_improvement_generations_allowed = config.STAGNATED_SPECIES_THRESHOLD
         self.times_stagnated = 0
-        self.max_fitness_achieved = 0
+        self.avg_max_fitness_achieved = 0
         self.generation_with_max_fitness = 0
 
 
@@ -61,8 +61,7 @@ class Species(object):
         app.play()
         results = app.crash_info
 
-
-        for network_num, crash_info in enumerate(results):
+        for crash_info in results:
 
             distance_from_pipes = 0
             if (crash_info['y'] < crash_info['upperPipes'][0]['y']):
@@ -70,20 +69,16 @@ class Species(object):
             elif (crash_info['y'] > crash_info['upperPipes'][0]['y']):
                 distance_from_pipes = abs(crash_info['y'] - crash_info['lowerPipes'][0]['y'])
 
-            # A couple different fitness functions to mess with
-            # fitness_score = (crash_info['score']*1000) + \
-            #                crash_info['distance'] - \
-            #                distance_from_pipes - \
-            #                (crash_info['energy'] * 2)
-
             fitness_score = ((crash_info['score'] * 5000) 
                               + (crash_info['distance'])
                               - (distance_from_pipes * 3))
 
-            neural_networks[network_num].set_fitness(fitness_score)
+            neural_networks[crash_info['network_id']].set_fitness(fitness_score)
 
-            print 'Network', network_num, 'scored', fitness_score
             species_score += fitness_score
+
+        for n_id, net in self.genomes.items():
+            print 'Network', n_id, 'scored', net.fitness
 
         print "\nSpecies Score:", species_score
 
@@ -92,15 +87,17 @@ class Species(object):
 
     def create_next_generation(self, replicate_ids):
         genomes = {}
+
         # Champion of each species is copied to next generation unchanged
-        genomes[0] = self.genomes[replicate_ids[0]]
+        genomes[0] = self.genomes[replicate_ids[0]].clone()
         genome_id = 1
 
         # Spawn a generation consisting of progeny from fittest predecessors
         while (genome_id < self.species_population):
 
             # Choose an old genome at random from the survivors
-            random_genome = self.genomes[np.random.choice(replicate_ids)]
+            choice = np.random.choice(replicate_ids)
+            random_genome = self.genomes[choice].clone()
 
             # Clone
             if np.random.uniform() > config.CROSSOVER_CHANCE:
@@ -113,7 +110,7 @@ class Species(object):
                 genomes[genome_id] = random_genome
 
             # Mutate the newly added genome
-            # genomes[genome_id].mutate()
+            genomes[genome_id].mutate()
 
             genome_id += 1
 
@@ -134,8 +131,9 @@ class Species(object):
 
 
     def culling(self, new_fitness):
-        if new_fitness > self.max_fitness_achieved:
-            self.max_fitness_achieved = new_fitness
+        new_avg_fitness = (new_fitness / self.species_population)
+        if new_avg_fitness > self.avg_max_fitness_achieved:
+            self.avg_max_fitness_achieved = new_avg_fitness
             self.generation_with_max_fitness = self.generation_number
         
         # Cull due to stagnation 
