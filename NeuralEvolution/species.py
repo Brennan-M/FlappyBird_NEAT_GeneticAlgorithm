@@ -146,7 +146,7 @@ class Species(object):
         if (self.generation_number - self.generation_with_max_fitness) > self.no_improvement_generations_allowed:
             self.times_stagnated += 1
             if self.times_stagnated > config.STAGNATIONS_ALLOWED:
-                print "Species", self.species_id, "culled."
+                print "Species", self.species_id, "culled due to multiple stagnations."
                 self.active = False
             else:
                 print "Species", self.species_id, "stagnated. Repopulating..."
@@ -161,8 +161,21 @@ class Species(object):
 
         # Cull due to weak species
         if (self.species_population < config.WEAK_SPECIES_THRESHOLD):
-            print "Species", self.species_id, "culled."
+            print "Species", self.species_id, "culled due to lack of breeding resulting in low population."
             self.active = False
+
+
+    def add_genome(self, genome):
+        genome.set_species(self.species_id)
+        genome.set_generation(self.generation_number)
+        self.genomes[self.species_population] = genome
+        self.species_population += 1
+
+
+    def delete_genome(self, genome_id):
+        self.genomes[genome_id] = self.genomes[self.species_population-1]
+        del self.genomes[self.species_population-1]
+        self.species_population -= 1
 
 
     def set_population(self, population):

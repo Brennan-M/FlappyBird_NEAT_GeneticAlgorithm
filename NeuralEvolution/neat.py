@@ -2,6 +2,7 @@ from NeuralEvolution.species import Species
 from NeuralEvolution.network import Network
 from NeuralEvolution.innovation import Innovation
 import NeuralEvolution.config as config
+import math
 
 
 
@@ -24,7 +25,7 @@ class NEAT(object):
         self.innovation = Innovation()
 
         initial_genome = Network(self.initial_genome_topology, self.innovation)
-        self.create_new_species(initial_genome)
+        self.create_new_species(initial_genome, self.population)
 
 
     def start_evolutionary_process(self):
@@ -58,19 +59,26 @@ class NEAT(object):
     
     def perform_speciation(self):
         for s_id, s in self.species.items():
-            for genome in s.genomes:
-                pass
-            # If it doesnt belong in current species, check if it belongs in any other current species
-            # otherwise, create new species, with this new species created, need to adjust population
-            #   of species it came from and new species
+            for genome_index, genome in s.genomes.items():
+                if not genome.is_compatible(s.species_genome_representative):
+                    s.delete_genome(genome_index)
+                    self.assign_genome(genome, s_id)
 
 
-    def is_unique_genome(self, genome):
-        # My Code Here
-        pass
+    def assign_genome(self, genome, origin_species_id):
+        print "Assigning", genome
+        for s_id, s in self.species.items():
+            if genome.is_compatible(s.species_genome_representative):
+                s.add_genome(genome)
+                return
+
+        population = int(math.ceil(self.species[origin_species_id].species_population/2.0))
+        # Halving the population for the origin species, will take one generation for changes to propagate
+        self.species[origin_species_id].set_population(population)
+        self.create_new_species(genome, population)
 
 
-    def create_new_species(self, initial_species_genome):
-        self.species[self.num_species] = Species(self.num_species, self.population, initial_species_genome)
+    def create_new_species(self, initial_species_genome, population):
+        self.species[self.num_species] = Species(self.num_species, population, initial_species_genome)
         self.num_species += 1
 

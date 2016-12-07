@@ -113,6 +113,10 @@ class Network(object):
             gene.randomize_weight()
 
 
+    def is_compatible(self, comparison_genome):
+        return True
+
+
     def mutate(self):
         # Genome Weight Mutations
         for gene in self.genes.values():
