@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import expon
 from NeuralEvolution.network import Network
 import NeuralEvolution.config as config
 import FlapPyBird.flappy as flpy
@@ -69,12 +70,13 @@ class Species(object):
             elif (crash_info['y'] > crash_info['upperPipes'][0]['y']):
                 distance_from_pipes = abs(crash_info['y'] - crash_info['lowerPipes'][0]['y'])
 
-            # fitness_score = ((crash_info['score'] * 5000) 
-            #                   + (crash_info['distance'])
-            #                   - (distance_from_pipes * 3))
-
-            fitness_score = ((crash_info['distance'])
+            fitness_score = ((crash_info['score'] * 1000) 
+                              + (crash_info['distance'])
+                              - (distance_from_pipes * 3)
                               - (1.5 * crash_info['energy']))
+
+            # fitness_score = ((crash_info['distance'])
+            #                   - (1.5 * crash_info['energy']))
 
             neural_networks[crash_info['network_id']].set_fitness(fitness_score)
 
@@ -99,8 +101,8 @@ class Species(object):
         while (genome_id < self.species_population):
 
             # Choose an old genome at random from the survivors
-            choice = np.random.choice(replicate_ids)
-            random_genome = self.genomes[choice].clone()
+            index_choice = self.get_skewed_random_sample(len(replicate_ids))
+            random_genome = self.genomes[replicate_ids[index_choice]].clone()
 
             # Clone
             if np.random.uniform() > config.CROSSOVER_CHANCE:
@@ -164,6 +166,35 @@ class Species(object):
 
     def set_population(self, population):
         self.species_population = population
+
+
+    def get_skewed_random_sample(self, n, slope=-1.0):
+        """
+        Randomly choose an index from an array of some given size using a scaled inverse exponential 
+
+        n: length of array
+        slope: (float) determines steepness of the probability distribution
+               -1.0 by default for slightly uniform probabilities skewed towards the left
+               < -1.0 makes it more steep and > -1.0 makes it flatter
+               slope = -n generates an approximately uniform distribution
+        """
+        inv_l = 1.0/(n**float(slope)) # 1/lambda
+        x = np.array([i for i in range(0,n)]) # list of indices 
+
+        # generate inverse exponential distribution using the indices and the inverse of lambda
+        p = expon.pdf(x, scale=inv_l)
+
+        # generate uniformly distributed random number and weigh it by total sum of pdf from above
+        rand = np.random.random() * np.sum(p)
+        
+        for i, p_i in enumerate(p):
+            # chooses an index by checking whether the generated number falls into a region around 
+            # that index's probability, where the region is sized based on that index's probability 
+            rand -= p_i
+            if rand < 0:
+                return i
+
+        return 0
 
 
     def pretty_print_s_id(self, s_id):
