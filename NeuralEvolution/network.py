@@ -146,12 +146,16 @@ class Network(object):
 
         # Adding Neuron
         if np.random.uniform() < config.ADD_NODE_MUTATION:
+            print "ADDED NODE"
             # Create new node
             new_neuron = Neuron(self.get_next_neuron_id())
 
             # Select gene at random and disable
             selected_gene = np.random.choice(self.genes.values())
             selected_gene.disable()
+
+            # TODO: Potentially should not choose a disabled gene to add a neuron to
+            #       Doing this, we can avoid adding the same neuron connection.
 
             # Create new genes
             new_input_gene = Gene(self.innovation.get_new_innovation_number(),

@@ -15,6 +15,7 @@ class Species(object):
         self.species_id = s_id
         self.species_population = species_population
         self.generation_number = 0
+        self.species_genome_representative = genome
 
         genome.set_species(self.species_id)
         genome.set_generation(self.generation_number)
@@ -33,8 +34,9 @@ class Species(object):
     def run_generation(self):
         if self.active:
             species_fitness = self.generate_fitness()
-            self.culling(species_fitness)
-            return species_fitness if self.active else 0
+            avg_species_fitness = float(species_fitness)/float(self.species_population)
+            self.culling(avg_species_fitness)
+            return avg_species_fitness if self.active else 0
         else:
             return 0
 
@@ -135,8 +137,7 @@ class Species(object):
         return alive_network_ids
 
 
-    def culling(self, new_fitness):
-        new_avg_fitness = (new_fitness / self.species_population)
+    def culling(self, new_avg_fitness):
         if new_avg_fitness > self.avg_max_fitness_achieved:
             self.avg_max_fitness_achieved = new_avg_fitness
             self.generation_with_max_fitness = self.generation_number
