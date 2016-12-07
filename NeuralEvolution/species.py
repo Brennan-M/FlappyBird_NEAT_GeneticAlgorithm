@@ -156,19 +156,10 @@ class Species(object):
                 for genome in self.genomes.values():
                     genome.reinitialize()
 
-
         # Cull due to weak species
         if (self.species_population < config.WEAK_SPECIES_THRESHOLD):
             print "Species", self.species_id, "culled."
             self.active = False
-
-
-    # def get_species_champion(self):
-    #     champion = self.genomes[0]
-    #     for n_id, network in self.genomes.items():
-    #         if network.fitness > champion.fitness:
-    #             champion = network
-    #     return champion
 
 
     def set_population(self, population):

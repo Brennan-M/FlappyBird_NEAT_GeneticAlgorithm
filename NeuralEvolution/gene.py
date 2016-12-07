@@ -17,23 +17,32 @@ class Gene(object):
         output_neuron.add_input_gene(self)
 
         self.enabled = enabled
-
-        if weight is None:
-            weight = np.random.uniform(-1, 1)
-
         self.weight = weight
+
+        if self.weight is None:
+            self.randomize_weight()
 
 
     def mutate_weight(self):
+        # Weight Mutation
         if np.random.uniform() < config.WEIGHT_MUTATION_RATE:
             if np.random.uniform() < config.UNIFORM_WEIGHT_MUTATION_RATE:
                 self.weight += np.random.uniform(-0.1, 0.1)
             else:
                 self.randomize_weight()
 
+        # Enabled Mutation
+        if not self.enabled:
+            if np.random.uniform() < config.ENABLE_GENE_MUTATION_RATE:
+                self.enabled = True
+
 
     def randomize_weight(self):
         self.weight = np.random.uniform(-2, 2)
+
+
+    def disable(self):
+        self.enabled = False
 
 
     def copy(self):

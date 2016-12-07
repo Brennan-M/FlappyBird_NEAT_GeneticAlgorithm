@@ -28,6 +28,7 @@ class Network(object):
         # Neural Net nodes and edges
         self.genes = {}
         self.neurons = {}
+        self.hidden_neurons = []
 
         # Create Neurons
         i = 0
@@ -83,18 +84,13 @@ class Network(object):
 
             for n_id, neuron in self.neurons.items():
                 if neuron.ready():
-                    for gene in neuron.output_genes.values():
-                        if gene.enabled:
-                            value = neuron.activation() * gene.weight
-                        else:
-                            value = 0
-                        gene.output_neuron.add_input(value)
+                    neuron.fire()
 
-                # If the neuron has not yet fired, feed forward it not finished
-                if not neuron.sent_output:
+                # If a neuron has not yet fired, feed forward has not finished
+                if not neuron.has_fired():
                     complete = False
 
-        # This code portion is indeed specific to FlappyBird
+        # This code portion (next 2 lines) is indeed specific to FlappyBird
         output_neuron = self.output_neurons[0]
         output_value = output_neuron.activation()
 
@@ -118,17 +114,59 @@ class Network(object):
 
 
     def mutate(self):
+        # Genome Weight Mutations
         for gene in self.genes.values():
             gene.mutate_weight()
-            #gene.mutate_possible_enable()
         
+        # Genome Structural Mutations
+        # Adding Gene
         if np.random.uniform() < config.ADD_GENE_MUTATION:
-            pass
+            # Certain genes are not valid, such as any gene going to an input node, or any gene from an output node
+            selected_input_node = np.random.choice(list(set().union(self.hidden_neurons, self.input_neurons)))
+            selected_output_node = np.random.choice(list(set().union(self.hidden_neurons, self.output_neurons)))
 
+            # If this connection already exists, do not make the new gene
+            gene_valid = True
+            for gene in self.genes.values():
+                if (gene.input_neuron.id == selected_input_node.id and
+                    gene.output_neuron.id == selected_output_node.id):
+                    
+                    gene_valid = False
+                    break
+
+            if (selected_input_node.id == selected_output_node.id):
+                gene_valid = False
+
+            if gene_valid:
+                new_gene = Gene(self.innovation.get_new_innovation_number(),
+                                selected_input_node,
+                                selected_output_node)
+
+                self.genes[new_gene.innovation_number] = new_gene
+
+        # Adding Neuron
         if np.random.uniform() < config.ADD_NODE_MUTATION:
-            pass
-            # print "ADDING NEW NODE MUTATION"
-            # new_neuron_id = self.get_next_neuron_id()
-            # self.neurons[new_neuron_id] = Neuron(new_neuron_id)
-            # exit()
+            # Create new node
+            new_neuron = Neuron(self.get_next_neuron_id())
+
+            # Select gene at random and disable
+            selected_gene = np.random.choice(self.genes.values())
+            selected_gene.disable()
+
+            # Create new genes
+            new_input_gene = Gene(self.innovation.get_new_innovation_number(),
+                                  selected_gene.input_neuron,
+                                  new_neuron,
+                                  1)
+
+            new_output_gene = Gene(self.innovation.get_new_innovation_number(),
+                                   new_neuron,
+                                   selected_gene.output_neuron,
+                                   selected_gene.weight)
+
+            # Add to network
+            self.genes[new_input_gene.innovation_number] = new_input_gene
+            self.genes[new_output_gene.innovation_number] = new_output_gene
+            self.neurons[new_neuron.id] = new_neuron
+            self.hidden_neurons.append(new_neuron)
 

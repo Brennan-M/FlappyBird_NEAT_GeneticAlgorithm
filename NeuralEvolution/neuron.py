@@ -15,18 +15,28 @@ class Neuron(object):
         self.input_genes = {}
         self.output_genes = {}
 
-        self.expected_inputs = lambda: 1 if self.type == "Input" else len(self.input_genes)
         self.received_inputs = 0
         self.input = 0.0
         self.sent_output = False
 
 
+    def expected_inputs(self):
+        return 1 if self.type == "Input" else len(self.input_genes)
+
+
     def ready(self):
         received_all_inputs = (self.received_inputs == self.expected_inputs())
-        if not self.sent_output and received_all_inputs:
-            self.sent_output = True
-            return True
-        return False
+        return (not self.sent_output and received_all_inputs)
+
+
+    def fire(self):
+        self.sent_output = True
+        for gene in self.output_genes.values():
+            gene.output_neuron.add_input((self.activation() * gene.weight) if gene.enabled else 0)
+
+
+    def has_fired(self):
+        return self.sent_output
 
 
     def reset_neuron(self):
