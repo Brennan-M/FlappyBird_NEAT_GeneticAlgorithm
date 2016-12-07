@@ -114,7 +114,9 @@ class Network(object):
 
 
     def is_compatible(self, comparison_genome):
-        return True
+        compatibility_score = 3
+
+        return compatibility_score < config.COMPATIBILITY_THRESHOLD
 
 
     def mutate(self):
@@ -150,7 +152,6 @@ class Network(object):
 
         # Adding Neuron
         if np.random.uniform() < config.ADD_NODE_MUTATION:
-            print "ADDED NODE"
             # Create new node
             new_neuron = Neuron(self.get_next_neuron_id())
 

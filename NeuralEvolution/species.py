@@ -34,7 +34,8 @@ class Species(object):
     def run_generation(self):
         if self.active:
             species_fitness = self.generate_fitness()
-            avg_species_fitness = float(species_fitness)/float(self.species_population)
+            # I don't particularly like this +1 fix... as it will skew populations
+            avg_species_fitness = float(species_fitness)/float(self.species_population+1)
             self.culling(avg_species_fitness)
             return avg_species_fitness if self.active else 0
         else:
@@ -81,11 +82,7 @@ class Species(object):
             #                   - (1.5 * crash_info['energy']))
 
             neural_networks[crash_info['network_id']].set_fitness(fitness_score)
-
             species_score += fitness_score
-
-        # for n_id, net in self.genomes.items():
-        #     print 'Network', n_id, 'scored', net.fitness
 
         print "\nSpecies Score:", species_score
 
@@ -132,8 +129,6 @@ class Species(object):
         alive_network_ids = sorted_network_ids[:int(round(float(self.species_population)/2.0))]
         dead_network_ids = sorted_network_ids[int(round(float(self.species_population)/2.0)):]
 
-        # print '\nBest Networks:', alive_network_ids
-        # print 'Worst Networks:', dead_network_ids
         return alive_network_ids
 
 
@@ -168,17 +163,18 @@ class Species(object):
     def add_genome(self, genome):
         genome.set_species(self.species_id)
         genome.set_generation(self.generation_number)
-        self.genomes[self.species_population] = genome
+        self.genomes[self.species_population] = genome.clone()
         self.species_population += 1
 
 
     def delete_genome(self, genome_id):
-        self.genomes[genome_id] = self.genomes[self.species_population-1]
+        self.genomes[genome_id] = self.genomes[self.species_population-1].clone()
         del self.genomes[self.species_population-1]
         self.species_population -= 1
 
 
     def set_population(self, population):
+        print "Setting population for species", self.species_id, "to", population
         self.species_population = population
 
 

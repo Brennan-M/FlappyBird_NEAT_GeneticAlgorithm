@@ -66,16 +66,13 @@ class NEAT(object):
 
 
     def assign_genome(self, genome, origin_species_id):
-        print "Assigning", genome
         for s_id, s in self.species.items():
             if genome.is_compatible(s.species_genome_representative):
                 s.add_genome(genome)
                 return
 
-        population = int(math.ceil(self.species[origin_species_id].species_population/2.0))
-        # Halving the population for the origin species, will take one generation for changes to propagate
-        self.species[origin_species_id].set_population(population)
-        self.create_new_species(genome, population)
+        print self.species[origin_species_id].species_population
+        self.create_new_species(genome, self.species[origin_species_id].species_population)
 
 
     def create_new_species(self, initial_species_genome, population):
