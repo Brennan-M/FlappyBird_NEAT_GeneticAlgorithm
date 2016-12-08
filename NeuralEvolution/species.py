@@ -110,9 +110,9 @@ class Species(object):
 
             # Crossover
             else:
-                # genome_mate = self.genomes[np.random.choice(replicate_ids)]
-                # genomes[genome_id] = random_genome.crossover(genome_mate)
-                genomes[genome_id] = random_genome
+                index_choice_mate = self.get_skewed_random_sample(len(replicate_ids))
+                random_genome_mate = self.genomes[replicate_ids[index_choice_mate]].clone()                
+                genomes[genome_id] = self.crossover(random_genome, random_genome_mate)
 
             # Mutate the newly added genome
             genomes[genome_id].mutate()
@@ -121,6 +121,29 @@ class Species(object):
 
         self.genomes = genomes
         
+
+    def crossover(self, random_genome, random_genome_mate):
+        if random_genome.fitness > random_genome_mate.fitness:
+            fit_genome, unfit_genome = random_genome, random_genome_mate
+        else:
+            fit_genome, unfit_genome = random_genome_mate, random_genome
+
+        for g_id, gene in fit_genome.genes.items():
+
+            # If it has key, it is a matching gene
+            if unfit_genome.genes.has_key(g_id):
+
+                # Randomly inherit from unfit genome
+                if np.random.uniform(-1, 1) < 0:
+                    gene.weight = unfit_genome.genes[g_id].weight
+
+                # Have chance of disabling if either parent is disabled
+                if not gene.enabled or not unfit_genome.genes[g_id].enabled:
+                    if np.random.uniform() < config.INHERIT_DISABLED_GENE_RATE:
+                        gene.disable()
+
+        return fit_genome
+
 
     def select_survivors(self):
         sorted_network_ids = sorted(self.genomes, 
