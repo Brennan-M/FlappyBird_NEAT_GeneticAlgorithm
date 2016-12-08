@@ -35,19 +35,18 @@ class Bird(object):
     def flap_decision(self, pipes):
 
         # Setup the input layer
-        X = [0 for _ in range(10)]
-        X[0] = self.x
-        X[1] = self.y
-        X[2] = pipes.upper[0]['x']
-        X[3] = pipes.upper[0]['y']
-        X[4] = pipes.upper[1]['x']
-        X[5] = pipes.upper[1]['y']
-        X[6] = pipes.lower[0]['x']
-        X[7] = pipes.lower[0]['y']
-        X[8] = pipes.lower[1]['x']
-        X[9] = pipes.lower[1]['y']
+        X = []
+        X.append(self.x)
+        X.append(self.y)
+        X.append(pipes.upper[0]['x'])
+        X.append(pipes.upper[0]['y'])
+        X.append(pipes.upper[1]['x'])
+        X.append(pipes.upper[1]['y'])
+        X.append(pipes.lower[0]['x'])
+        X.append(pipes.lower[0]['y'])
+        X.append(pipes.lower[1]['x'])
+        X.append(pipes.lower[1]['y'])
         # Feed the neural network information
-        #self.neural_network.feed_forward(X)
 
         # Obtain Prediction
         if self.neural_network.predict(X) == 1:

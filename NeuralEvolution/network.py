@@ -83,6 +83,7 @@ class Network(object):
             complete = True
 
             for n_id, neuron in self.neurons.items():
+                # Neuron has received all inputs, send the output onwards    
                 if neuron.ready():
                     neuron.fire()
 
@@ -174,16 +175,16 @@ class Network(object):
             selected_input_node = np.random.choice(list(set().union(self.hidden_neurons, self.input_neurons)))
             selected_output_node = np.random.choice(list(set().union(self.hidden_neurons, self.output_neurons)))
 
-            # If this connection already exists, do not make the new gene
             gene_valid = True
             for gene in self.genes.values():
+                # If this connection already exists, do not make the new gene
                 if (gene.input_neuron.id == selected_input_node.id and
                     gene.output_neuron.id == selected_output_node.id):
-                    
                     gene_valid = False
                     break
 
-            if (selected_input_node.id == selected_output_node.id):
+            # Can't have loops. Can't connect to itself. Gene must connect node from backwards to forwards.
+            if (selected_input_node.id >= selected_output_node.id):
                 gene_valid = False
 
             if gene_valid:
@@ -203,9 +204,12 @@ class Network(object):
             if selected_gene.enabled:
 
                 selected_gene.disable()
-                
-                # Create new node
-                new_neuron = Neuron(self.get_next_neuron_id())
+
+                # Create new node, rearrange ids to make higher neuron ids farther towards output layer
+                new_neuron = Neuron(selected_gene.output_neuron.id)
+                self.neurons[selected_gene.output_neuron.id] = new_neuron
+                selected_gene.output_neuron.set_id(self.get_next_neuron_id())
+                self.neurons[selected_gene.output_neuron.id] = selected_gene.output_neuron
 
                 # Create new genes
                 new_input_gene = Gene(self.innovation.get_new_innovation_number(),
@@ -221,6 +225,5 @@ class Network(object):
                 # Add to network
                 self.genes[new_input_gene.innovation_number] = new_input_gene
                 self.genes[new_output_gene.innovation_number] = new_output_gene
-                self.neurons[new_neuron.id] = new_neuron
                 self.hidden_neurons.append(new_neuron)
 

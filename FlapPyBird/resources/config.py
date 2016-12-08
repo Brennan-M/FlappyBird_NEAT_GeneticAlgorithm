@@ -14,7 +14,7 @@ BASEY        = SCREENHEIGHT * 0.79
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
 
 RANDOM_PIPES = False
-REPEATING_PIPES = False
+REPEATING_PIPES = not RANDOM_PIPES
 INTERVAL = np.concatenate((np.linspace(1, 0, 5, endpoint=False), np.linspace(0.2, 1, 5)), axis=0)
 PIPE_PATTERN = [int(x * int(BASEY * 0.6 - PIPEGAPSIZE)) for x in INTERVAL]
 SOUND_ON = False

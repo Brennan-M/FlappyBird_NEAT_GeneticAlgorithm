@@ -63,7 +63,9 @@ class Neuron(object):
 
 
     def sigmoid(self, x):
-        #return (1.0 / (1.0 + math.e**(-T)))
         return (2.0 / (1.0 + np.exp(-4.9 * x)) - 1.0)
 
+
+    def set_id(self, new_id):
+        self.id = new_id
 

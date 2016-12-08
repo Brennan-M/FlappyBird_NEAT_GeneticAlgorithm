@@ -101,8 +101,9 @@ class NEAT(object):
         # Not my favorite way of deciding on new populations... TODO: Could be improved
         new_species_pop = int(math.floor(self.species[origin_species_id].species_population/2.0))
         origin_species_pop = int(math.ceil(self.species[origin_species_id].species_population/2.0))
-
         self.species[origin_species_id].set_population(origin_species_pop)
+
+        # new_species_pop = self.population
         self.create_new_species(genome, new_species_pop)
 
 
