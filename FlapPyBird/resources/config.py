@@ -2,7 +2,7 @@ import os
 
 RANDOM_PIPES = False
 REPEATING_PIPES = True
-PIPE_PATTERN = [1, 2, 2, 1, 2, 2] # pattern must have at least length 2
+PIPE_PATTERN = [1, 1] # pattern must have at least length 2
 SOUND_ON = False
 
 FPS = 60 # Seems I cannot speed it up past this.

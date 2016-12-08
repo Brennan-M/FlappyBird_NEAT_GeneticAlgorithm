@@ -114,9 +114,52 @@ class Network(object):
 
 
     def is_compatible(self, comparison_genome):
-        compatibility_score = 3
+        normalization_const = max(len(self.genes), len(comparison_genome.genes))
+        normalization_const = normalization_const if normalization_const > 20 else 1
+        
+        num_excess_genes = len(self.get_excess_genes(comparison_genome))
+        num_disjoint_genes = len(self.get_disjoint_genes(comparison_genome))
+        avg_weight_diff = self.get_avg_weight_difference(comparison_genome)
+        compatibility_score = ((num_excess_genes * config.EXCESS_COMPATIBILITY_CONSTANT) /
+                                    normalization_const) +\
+                              ((num_disjoint_genes * config.DISJOINT_COMPATIBILITY_CONSTANT) /
+                                    normalization_const) +\
+                              (avg_weight_diff * config.WEIGHT_COMPATIBILITY_CONSTANT)
 
-        return compatibility_score < config.COMPATIBILITY_THRESHOLD
+        compatible = compatibility_score < config.COMPATIBILITY_THRESHOLD
+        return compatible
+
+
+    def get_excess_genes(self, comparison_genome):
+        excess_genes = []
+        largest_innovation_id = max(self.genes.keys())
+
+        for g_id, genome in comparison_genome.genes.items():
+            if g_id > largest_innovation_id:
+                excess_genes.append(genome)
+
+        return excess_genes
+
+
+    def get_disjoint_genes(self, comparison_genome):
+        disjoint_genes = []
+        largest_innovation_id = max(self.genes.keys())
+
+        for g_id, genome in comparison_genome.genes.items():
+            if not self.genes.has_key(g_id) and g_id < largest_innovation_id:
+                disjoint_genes.append(genome)
+
+        for g_id, genome in self.genes.items():
+            if not comparison_genome.genes.has_key(g_id):
+                disjoint_genes.append(genome)
+
+        return disjoint_genes
+
+
+    def get_avg_weight_difference(self, comparison_genome):
+        avg_weight_self = sum(gene.weight for gene in self.genes.values()) / len(self.genes)
+        avg_weight_comp = sum(gene.weight for gene in comparison_genome.genes.values()) / len(comparison_genome.genes)
+        return abs(avg_weight_self - avg_weight_comp)
 
 
     def mutate(self):

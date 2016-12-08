@@ -37,9 +37,9 @@ class Species(object):
             # I don't particularly like this +1 fix... as it will skew populations
             avg_species_fitness = float(species_fitness)/float(self.species_population+1)
             self.culling(avg_species_fitness)
-            return avg_species_fitness if self.active else 0
+            return avg_species_fitness if self.active else None
         else:
-            return 0
+            return None
 
 
     def evolve(self):
@@ -174,7 +174,6 @@ class Species(object):
 
 
     def set_population(self, population):
-        print "Setting population for species", self.species_id, "to", population
         self.species_population = population
 
 

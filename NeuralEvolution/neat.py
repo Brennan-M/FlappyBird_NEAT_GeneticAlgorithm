@@ -2,6 +2,7 @@ from NeuralEvolution.species import Species
 from NeuralEvolution.network import Network
 from NeuralEvolution.innovation import Innovation
 import NeuralEvolution.config as config
+from sklearn import preprocessing
 import math
 
 
@@ -32,47 +33,73 @@ class NEAT(object):
 
         while not self.solved:
 
-            avg_fitness_scores = [None for i in xrange(self.num_species)]
+            avg_fitness_scores = {}
             # Run the current generation for each species
             for s_id, s in self.species.items():
                 avg_fitness = s.run_generation()
-                avg_fitness_scores[s_id] = avg_fitness
+                if avg_fitness != None:
+                    avg_fitness_scores[s_id] = avg_fitness
             
-            self.avg_population_fitness = float(sum(avg_fitness_scores))
-
-            if (self.avg_population_fitness == 0):
+            if (len(avg_fitness_scores) == 0):
                 print "\n\nAll species have gone extinct!\n\n"
                 exit()
 
+            self.assign_species_populations_for_next_generation(avg_fitness_scores)
+
             # Evolve (create the next generation) for each species
             for s_id, s in self.species.items():
-                weighted_fitness = avg_fitness_scores[s_id]/self.avg_population_fitness
-                weighted_population = int(round(self.population * weighted_fitness))
-                s.set_population(weighted_population)
                 s.evolve()
 
+            # Create new species from evolved current species
             self.perform_speciation()
 
         # Need to potentially set this somewhere...
         return self.solution_genome
 
+
+    # Truly a tragedy and insult to my own coding ability...
+    def assign_species_populations_for_next_generation(self, avg_fitness_scores):
+        if len(avg_fitness_scores) == 1:
+            return
+
+        sorted_species_ids = sorted(avg_fitness_scores, key=avg_fitness_scores.get)
+        
+        pop_change = int(math.floor(len(avg_fitness_scores)/2.0))
+        start = 0
+        end = len(sorted_species_ids) - 1
+        while (start < end): # This is so embarrassing 
+            self.species[sorted_species_ids[start]].set_population(
+                self.species[sorted_species_ids[start]].species_population - pop_change)
+            self.species[sorted_species_ids[end]].set_population(
+                self.species[sorted_species_ids[end]].species_population + pop_change)
+            start += 1
+            end -= 1
+            pop_change -= 1
+
     
     def perform_speciation(self):
         for s_id, s in self.species.items():
-            for genome_index, genome in s.genomes.items():
-                if not genome.is_compatible(s.species_genome_representative):
-                    s.delete_genome(genome_index)
-                    self.assign_genome(genome, s_id)
+            # Only want to speciate and find evolve from active species
+            if s.active:
+                for genome_index, genome in s.genomes.items():
+                    if not genome.is_compatible(s.species_genome_representative):
+                        self.assign_genome(genome, s_id)
+                        s.delete_genome(genome_index)
 
 
     def assign_genome(self, genome, origin_species_id):
         for s_id, s in self.species.items():
             if genome.is_compatible(s.species_genome_representative):
+                # If we add to dead species, it didn't deserve to live anyway
                 s.add_genome(genome)
                 return
 
-        print self.species[origin_species_id].species_population
-        self.create_new_species(genome, self.species[origin_species_id].species_population)
+        # Not my favorite way of deciding on new populations... TODO: Could be improved
+        new_species_pop = int(math.floor(self.species[origin_species_id].species_population/2.0))
+        origin_species_pop = int(math.ceil(self.species[origin_species_id].species_population/2.0))
+
+        self.species[origin_species_id].set_population(origin_species_pop)
+        self.create_new_species(genome, new_species_pop)
 
 
     def create_new_species(self, initial_species_genome, population):
