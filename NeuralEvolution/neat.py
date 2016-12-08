@@ -44,7 +44,8 @@ class NEAT(object):
                 print "\n\nAll species have gone extinct!\n\n"
                 exit()
 
-            self.assign_species_populations_for_next_generation(avg_fitness_scores)
+            if config.DYNAMIC_POPULATION:
+                self.assign_species_populations_for_next_generation(avg_fitness_scores)
 
             # Evolve (create the next generation) for each species
             for s_id, s in self.species.items():
@@ -100,12 +101,14 @@ class NEAT(object):
                 s.add_genome(genome)
                 return
 
-        # Not my favorite way of deciding on new populations... TODO: Could be improved
-        new_species_pop = int(math.floor(self.species[origin_species_id].species_population/2.0))
-        origin_species_pop = int(math.ceil(self.species[origin_species_id].species_population/2.0))
-        self.species[origin_species_id].set_population(origin_species_pop)
+        # Not my favorite way of deciding on new populations...
+        if config.DYNAMIC_POPULATION:
+            new_species_pop = int(math.floor(self.species[origin_species_id].species_population/2.0))
+            origin_species_pop = int(math.ceil(self.species[origin_species_id].species_population/2.0))
+            self.species[origin_species_id].set_population(origin_species_pop)
+        else:
+            new_species_pop = self.population
 
-        # new_species_pop = self.population
         self.create_new_species(genome, new_species_pop)
 
 
