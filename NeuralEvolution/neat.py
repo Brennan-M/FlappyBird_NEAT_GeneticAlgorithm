@@ -51,13 +51,13 @@ class NEAT(object):
                 s.evolve()
 
             # Create new species from evolved current species
-            self.perform_speciation()
+            if config.SPECIATION:
+                self.perform_speciation()
 
         # Need to potentially set this somewhere...
         return self.solution_genome
 
 
-    # Truly a tragedy and insult to my own coding ability...
     def assign_species_populations_for_next_generation(self, avg_fitness_scores):
         if len(avg_fitness_scores) == 1:
             return
@@ -67,13 +67,15 @@ class NEAT(object):
         # If any species were culled... reassign population to best species.
         active_pop = self.get_active_population()
         if active_pop < self.population:
-            self.species[sorted_species_ids[-1]].increment_population(self.population-active_pop)
+            print "Active population:", active_pop
+            print sorted_species_ids
+            self.species[sorted_species_ids[0]].increment_population(self.population-active_pop)
 
         # Handle all other population changes.
         pop_change = int(math.floor(len(avg_fitness_scores)/2.0))
         start = 0
         end = len(sorted_species_ids) - 1
-        while (start < end): # This is so embarrassing 
+        while (start < end): 
             self.species[sorted_species_ids[start]].decrement_population(pop_change)
             self.species[sorted_species_ids[end]].increment_population(pop_change)
             start += 1

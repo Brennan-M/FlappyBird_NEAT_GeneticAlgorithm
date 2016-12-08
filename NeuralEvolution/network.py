@@ -171,28 +171,37 @@ class Network(object):
         # Genome Structural Mutations
         # Adding Gene
         if np.random.uniform() < config.ADD_GENE_MUTATION:
-            # Certain genes are not valid, such as any gene going to an input node, or any gene from an output node
-            selected_input_node = np.random.choice(list(set().union(self.hidden_neurons, self.input_neurons)))
-            selected_output_node = np.random.choice(list(set().union(self.hidden_neurons, self.output_neurons)))
 
-            gene_valid = True
-            for gene in self.genes.values():
-                # If this connection already exists, do not make the new gene
-                if (gene.input_neuron.id == selected_input_node.id and
-                    gene.output_neuron.id == selected_output_node.id):
-                    gene_valid = False
+            gene_added = False
+            while not gene_added:
+
+                # No valid genes exist to be added.
+                if (len(self.hidden_neurons) == 0):
                     break
 
-            # Can't have loops. Can't connect to itself. Gene must connect node from backwards to forwards.
-            if (selected_input_node.id >= selected_output_node.id):
-                gene_valid = False
+                # Certain genes are not valid, such as any gene going to an input node, or any gene from an output node
+                selected_input_node = np.random.choice(list(set().union(self.hidden_neurons, self.input_neurons)))
+                selected_output_node = np.random.choice(list(set().union(self.hidden_neurons, self.output_neurons)))
 
-            if gene_valid:
-                new_gene = Gene(self.innovation.get_new_innovation_number(),
-                                selected_input_node,
-                                selected_output_node)
+                gene_valid = True
+                for gene in self.genes.values():
+                    # If this connection already exists, do not make the new gene
+                    if (gene.input_neuron.id == selected_input_node.id and
+                        gene.output_neuron.id == selected_output_node.id):
+                        gene_valid = False
+                        break
 
-                self.genes[new_gene.innovation_number] = new_gene
+                # Can't have loops. Can't connect to itself. Gene must connect node from backwards to forwards.
+                if (selected_input_node.id >= selected_output_node.id):
+                    gene_valid = False
+
+                if gene_valid:
+                    new_gene = Gene(self.innovation.get_new_innovation_number(),
+                                    selected_input_node,
+                                    selected_output_node)
+
+                    self.genes[new_gene.innovation_number] = new_gene
+                    gene_added = True
 
         # Adding Neuron
         if np.random.uniform() < config.ADD_NODE_MUTATION:
@@ -202,7 +211,6 @@ class Network(object):
             
             # Avoid adding the same neuron connection by not choosing a di.
             if selected_gene.enabled:
-
                 selected_gene.disable()
 
                 # Create new node, rearrange ids to make higher neuron ids farther towards output layer
