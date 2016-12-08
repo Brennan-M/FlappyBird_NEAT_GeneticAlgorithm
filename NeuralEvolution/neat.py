@@ -119,5 +119,3 @@ class NEAT(object):
 
         return active_population
 
-
-

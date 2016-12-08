@@ -195,30 +195,32 @@ class Network(object):
 
         # Adding Neuron
         if np.random.uniform() < config.ADD_NODE_MUTATION:
-            # Create new node
-            new_neuron = Neuron(self.get_next_neuron_id())
 
             # Select gene at random and disable
             selected_gene = np.random.choice(self.genes.values())
-            selected_gene.disable()
+            
+            # Avoid adding the same neuron connection by not choosing a di.
+            if selected_gene.enabled:
 
-            # TODO: Potentially should not choose a disabled gene to add a neuron to
-            #       Doing this, we can avoid adding the same neuron connection.
+                selected_gene.disable()
+                
+                # Create new node
+                new_neuron = Neuron(self.get_next_neuron_id())
 
-            # Create new genes
-            new_input_gene = Gene(self.innovation.get_new_innovation_number(),
-                                  selected_gene.input_neuron,
-                                  new_neuron,
-                                  1)
+                # Create new genes
+                new_input_gene = Gene(self.innovation.get_new_innovation_number(),
+                                      selected_gene.input_neuron,
+                                      new_neuron,
+                                      1)
 
-            new_output_gene = Gene(self.innovation.get_new_innovation_number(),
-                                   new_neuron,
-                                   selected_gene.output_neuron,
-                                   selected_gene.weight)
+                new_output_gene = Gene(self.innovation.get_new_innovation_number(),
+                                       new_neuron,
+                                       selected_gene.output_neuron,
+                                       selected_gene.weight)
 
-            # Add to network
-            self.genes[new_input_gene.innovation_number] = new_input_gene
-            self.genes[new_output_gene.innovation_number] = new_output_gene
-            self.neurons[new_neuron.id] = new_neuron
-            self.hidden_neurons.append(new_neuron)
+                # Add to network
+                self.genes[new_input_gene.innovation_number] = new_input_gene
+                self.genes[new_output_gene.innovation_number] = new_output_gene
+                self.neurons[new_neuron.id] = new_neuron
+                self.hidden_neurons.append(new_neuron)
 

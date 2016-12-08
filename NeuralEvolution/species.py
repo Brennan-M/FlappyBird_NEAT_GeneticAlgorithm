@@ -67,19 +67,20 @@ class Species(object):
 
         for crash_info in results:
 
-            distance_from_pipes = 0
-            if (crash_info['y'] < crash_info['upperPipes'][0]['y']):
-                distance_from_pipes = abs(crash_info['y'] - crash_info['upperPipes'][0]['y'])
-            elif (crash_info['y'] > crash_info['upperPipes'][0]['y']):
-                distance_from_pipes = abs(crash_info['y'] - crash_info['lowerPipes'][0]['y'])
+            # distance_from_pipes = 0
+            # if (crash_info['y'] < crash_info['upperPipes'][0]['y']):
+            #     distance_from_pipes = abs(crash_info['y'] - crash_info['upperPipes'][0]['y'])
+            # elif (crash_info['y'] > crash_info['upperPipes'][0]['y']):
+            #     distance_from_pipes = abs(crash_info['y'] - crash_info['lowerPipes'][0]['y'])
 
-            fitness_score = ((crash_info['score'] * 1000) 
-                              + (crash_info['distance'])
-                              - (distance_from_pipes * 3)
-                              - (1.5 * crash_info['energy']))
-
-            # fitness_score = ((crash_info['distance'])
+            # fitness_score = ((crash_info['score'] * 1000) 
+            #                   + (crash_info['distance'])
+            #                   - (distance_from_pipes * 3)
             #                   - (1.5 * crash_info['energy']))
+
+            fitness_score = ((crash_info['score'] * 1000)
+                             + (crash_info['distance'])
+                             - (1.5 * crash_info['energy']))
 
             neural_networks[crash_info['network_id']].set_fitness(fitness_score)
             species_score += fitness_score
