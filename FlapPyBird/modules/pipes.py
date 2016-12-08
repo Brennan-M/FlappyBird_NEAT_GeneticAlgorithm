@@ -5,15 +5,23 @@ class Pipe(object):
 
     def __init__(self, seed = None):
         if seed:
-            random.seed(seed)
-        elif RANDOM_PIPES:
-            random.seed() 
-        else: 
-            random.seed(5)
+            gapY = seed
+            gapY += int(BASEY * 0.2)
 
-        # y of gap between upper and lower pipe
-        gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
-        gapY += int(BASEY * 0.2)
+            # y of gap between upper and lower pipe
+            #print(BASEY * 0.6 - PIPEGAPSIZE)
+            #gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
+
+        else:
+            if RANDOM_PIPES:
+                random.seed()
+            else:
+                random.seed(5)
+            
+            # y of gap between upper and lower pipe
+            gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
+            gapY += int(BASEY * 0.2)
+
         pipeHeight = IMAGES['pipe'][0].get_height()
         pipeX = SCREENWIDTH + 10
         pipeY_upper = gapY - pipeHeight
@@ -83,9 +91,6 @@ class Pipes(object):
         # remove first pipe if its out of the screen
         if self.upper[0]['x'] < -IMAGES['pipe'][0].get_width():
             self.remove()
-            if self.pattern:
-                seed1 = self.pattern.pop(0)
-                self.pattern.append(seed1)
 
 
     def add(self, new_pipe):

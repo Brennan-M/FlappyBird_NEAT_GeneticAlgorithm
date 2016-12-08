@@ -177,6 +177,14 @@ class Species(object):
         self.species_population = population
 
 
+    def increment_population(self, population_change=1):
+        self.species_population += population_change
+
+
+    def decrement_population(self, population_change=1):
+        self.species_population -= population_change
+
+
     def get_skewed_random_sample(self, n, slope=-1.0):
         """
         Randomly choose an index from an array of some given size using a scaled inverse exponential 

@@ -63,15 +63,19 @@ class NEAT(object):
             return
 
         sorted_species_ids = sorted(avg_fitness_scores, key=avg_fitness_scores.get)
-        
+
+        # If any species were culled... reassign population to best species.
+        active_pop = self.get_active_population()
+        if active_pop < self.population:
+            self.species[sorted_species_ids[-1]].increment_population(self.population-active_pop)
+
+        # Handle all other population changes.
         pop_change = int(math.floor(len(avg_fitness_scores)/2.0))
         start = 0
         end = len(sorted_species_ids) - 1
         while (start < end): # This is so embarrassing 
-            self.species[sorted_species_ids[start]].set_population(
-                self.species[sorted_species_ids[start]].species_population - pop_change)
-            self.species[sorted_species_ids[end]].set_population(
-                self.species[sorted_species_ids[end]].species_population + pop_change)
+            self.species[sorted_species_ids[start]].decrement_population(pop_change)
+            self.species[sorted_species_ids[end]].increment_population(pop_change)
             start += 1
             end -= 1
             pop_change -= 1
@@ -105,4 +109,15 @@ class NEAT(object):
     def create_new_species(self, initial_species_genome, population):
         self.species[self.num_species] = Species(self.num_species, population, initial_species_genome)
         self.num_species += 1
+
+
+    def get_active_population(self):
+        active_population = 0
+        for species in self.species.values():
+            if species.active:
+                active_population += species.species_population
+
+        return active_population
+
+
 

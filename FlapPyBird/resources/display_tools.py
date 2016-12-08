@@ -61,7 +61,6 @@ def displayStat(SCREEN, stat, text=None):
           """displays score in center of screen"""
           for digit in scoreDigits:
               SCREEN.blit(IMAGES['numbers'][digit], (235, 30))
-
           SCREEN.blit(IMAGES[text], (205, 0))
 
       elif text == "generation":

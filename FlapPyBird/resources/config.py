@@ -1,9 +1,6 @@
 import os
+import numpy as np
 
-RANDOM_PIPES = False
-REPEATING_PIPES = True
-PIPE_PATTERN = [1, 1] # pattern must have at least length 2
-SOUND_ON = False
 
 FPS = 60 # Seems I cannot speed it up past this.
 SCREENWIDTH  = 288
@@ -15,6 +12,12 @@ PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
+
+RANDOM_PIPES = False
+REPEATING_PIPES = False
+INTERVAL = np.concatenate((np.linspace(1, 0, 5, endpoint=False), np.linspace(0.2, 1, 5)), axis=0)
+PIPE_PATTERN = [int(x * int(BASEY * 0.6 - PIPEGAPSIZE)) for x in INTERVAL]
+SOUND_ON = False
 
 PATH = os.getcwd()
 
